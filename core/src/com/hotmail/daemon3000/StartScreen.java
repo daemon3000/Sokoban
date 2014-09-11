@@ -11,16 +11,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.*;
 public class StartScreen implements Screen {
 	private Texture m_bodyTexture;
 	private Texture m_handTexture;
-	private Texture m_playButtonUpTexture;
-	private Texture m_exitButtonUpTexture;
+	private Texture m_playButtonTexture;
+	private Texture m_exitButtonTexture;
 	private Stage m_stage;
 	private Game m_game;
 	
 	public StartScreen(Game game) {
 		m_bodyTexture = new Texture(Gdx.files.internal("img/start_screen_player_body.png"));
 		m_handTexture = new Texture(Gdx.files.internal("img/start_screen_player_hand.png"));
-		m_playButtonUpTexture = new Texture(Gdx.files.internal("ui/img/play_button_up.png"));
-		m_exitButtonUpTexture = new Texture(Gdx.files.internal("ui/img/exit_button_up.png"));
+		m_playButtonTexture = new Texture(Gdx.files.internal("ui/img/play_button.png"));
+		m_exitButtonTexture = new Texture(Gdx.files.internal("ui/img/exit_button.png"));
 		m_stage = new Stage();
 		m_game = game;
 		
@@ -59,8 +59,8 @@ public class StartScreen implements Screen {
 	}
 	
 	private void createMenu() {
-		ImageButton playButton = new ImageButton(new SpriteDrawable(new Sprite(m_playButtonUpTexture)));
-		playButton.setPosition(0.0f, m_exitButtonUpTexture.getHeight() + 5);
+		ImageButton playButton = new ImageButton(new SpriteDrawable(new Sprite(m_playButtonTexture)));
+		playButton.setPosition(0.0f, m_exitButtonTexture.getHeight() + 5);
 		playButton.addListener(new InputListener() {
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				m_game.setScreen(new GameScreen());
@@ -68,7 +68,7 @@ public class StartScreen implements Screen {
 			}
 		});
 		
-		ImageButton exitButton = new ImageButton(new SpriteDrawable(new Sprite(m_exitButtonUpTexture)));
+		ImageButton exitButton = new ImageButton(new SpriteDrawable(new Sprite(m_exitButtonTexture)));
 		exitButton.addListener(new InputListener() {
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				Gdx.app.exit();
@@ -79,7 +79,7 @@ public class StartScreen implements Screen {
 		Group buttons = new Group();
 		buttons.addActor(playButton);
 		buttons.addActor(exitButton);
-		buttons.setPosition(Gdx.graphics.getWidth() / 2 - m_playButtonUpTexture.getWidth() / 2, 50);
+		buttons.setPosition(Gdx.graphics.getWidth() / 2 - m_playButtonTexture.getWidth() / 2, 50);
 		
 		m_stage.addActor(buttons);
 	}
@@ -117,7 +117,7 @@ public class StartScreen implements Screen {
 		m_stage.dispose();
 		m_bodyTexture.dispose();
 		m_handTexture.dispose();
-		m_playButtonUpTexture.dispose();
-		m_exitButtonUpTexture.dispose();
+		m_playButtonTexture.dispose();
+		m_exitButtonTexture.dispose();
 	}
 }

@@ -16,6 +16,8 @@ public class LevelPack {
 	private OrthographicCamera m_camera;
 	private Array<Texture> m_tileTextures;
 	private Array<LevelData> m_levels;
+	private int m_maxLevelSize;
+	private Level m_lastLoadedLevel = null;
 	private boolean m_isDisposed = false;
 	
 	public LevelPack(String file, SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures) {
@@ -44,11 +46,14 @@ public class LevelPack {
 			m_levels = new Array<LevelData>();
 			
 			Array<String> levelLines = new Array<String>();
-			int levelWidth = 0;
+			int levelWidth = 0, maxLevelWidth = 0, maxLevelHeight = 0;
 			
 			for(String line; (line = reader.readLine()) != null;) {
 				if(line.length() < MIN_LEVEL_SIZE || line.startsWith(";") || line.startsWith("\n")) {
 					if(levelLines.size >= MIN_LEVEL_SIZE) {
+						if(levelLines.size > maxLevelHeight)
+							maxLevelHeight = levelLines.size;
+						
 						createLevel(levelLines, levelWidth);
 						levelLines.clear();
 						levelWidth = 0;
@@ -58,12 +63,16 @@ public class LevelPack {
 				
 				if(line.length() > levelWidth)
 					levelWidth = line.length();
+				if(levelWidth > maxLevelWidth)
+					maxLevelWidth = line.length();
 				levelLines.add(line);
 			}
 			
 			if(levelLines.size >= MIN_LEVEL_SIZE) {
 				createLevel(levelLines, levelWidth);
 			}
+			
+			m_maxLevelSize = maxLevelWidth * maxLevelHeight;
 			
 			reader.close();
 		}
@@ -130,14 +139,26 @@ public class LevelPack {
 	}
 	
 	public Level getLevel(int index) {
-		if(!m_isDisposed)
-			return new Level(m_spriteBatch, m_camera, m_tileTextures, m_levels.get(index));
-		else
-			return null;
+		if(!m_isDisposed) {
+			if(index < 0 || index >= m_levels.size)
+				return null;
+			
+			if(m_lastLoadedLevel != null) {
+				m_lastLoadedLevel.initialize(m_levels.get(index));
+			}
+			else {
+				m_lastLoadedLevel = new Level(m_spriteBatch, m_camera, m_tileTextures, m_maxLevelSize, m_levels.get(index));
+			}
+			
+			return m_lastLoadedLevel;
+		}
+		
+		return null;
 	}
 	
 	public void dispose() {
 		if(!m_isDisposed) {
+			m_lastLoadedLevel.dispose();
 			m_spriteBatch = null;
 			m_camera = null;
 			m_tileTextures = null;

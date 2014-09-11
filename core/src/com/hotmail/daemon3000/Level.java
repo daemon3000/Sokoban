@@ -3,10 +3,10 @@ package com.hotmail.daemon3000;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.*;
 
 public class Level {
-	public static final int MAX_UNDO = 20;
+	public static final int MAX_UNDO = 30;
 	
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
@@ -19,30 +19,56 @@ public class Level {
 	private int m_playerPosY = 0;
 	private int m_moveCount = 0;
 	private boolean m_isDisposed = false;
+	private boolean m_isInitialized = false;
 	
-	public Level(SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures, LevelData levelData) {
+	public Level(SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures, int tileCapacity, LevelData levelData) {
 		m_spriteBatch = batch;
 		m_camera = camera;
 		m_tileTextures = tileTextures;
 		m_undoStack = new Array<UndoStep>(MAX_UNDO + 1);
-		m_tiles = levelData.tiles.clone();
+		m_tiles = new byte[tileCapacity];
+		
+		initialize(levelData);
+	}
+	
+	public Level(SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures, int tileCapacity) {
+		m_spriteBatch = batch;
+		m_camera = camera;
+		m_tileTextures = tileTextures;
+		m_undoStack = new Array<UndoStep>(MAX_UNDO + 1);
+		m_tiles = new byte[tileCapacity];
+	}
+	
+	public void initialize(LevelData levelData) {
+		if(levelData.tiles.length > m_tiles.length || m_tiles == null)
+		{
+			m_tiles = new byte[levelData.tiles.length];
+		}
+		for(int i = 0; i < levelData.tiles.length; i++) {
+			m_tiles[i] = levelData.tiles[i];
+		}
+		
 		m_width = levelData.width;
 		m_height = levelData.height;
 		m_playerPosX = levelData.playerPosX;
 		m_playerPosY = levelData.playerPosY;
 		m_camera.position.set(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, 0);
+		m_moveCount = 0;
+		m_undoStack.clear();
+		m_isInitialized = true;
 	}
 	
 	public void render() {
-		if(m_isDisposed || m_tiles.length == 0)
+		if(m_isDisposed || !m_isInitialized || m_tiles.length == 0)
 			return;
 		
 		m_camera.update();
 		m_spriteBatch.setProjectionMatrix(m_camera.combined);
 		m_spriteBatch.begin();
 		
+		int length = m_width * m_height;  
 		int texturePosX, texturePosY;
-		for(int i = 0; i < m_tiles.length; i++)
+		for(int i = 0; i < length; i++)
 		{
 			if(m_tiles[i] == Tiles.TILE_EMPTY || m_tiles[i] == Tiles.TILE_NULL)
 				continue;
@@ -55,7 +81,7 @@ public class Level {
 	}
 	
 	public void movePlayer(int dx, int dy) {
-		if(m_isDisposed || m_tiles.length == 0)
+		if(m_isDisposed || !m_isInitialized || m_tiles.length == 0)
 			return;
 		
 		UndoStep undoStep = new UndoStep();
@@ -142,7 +168,7 @@ public class Level {
 	}
 	
 	public void undoMovePlayer() {
-		if(m_isDisposed || m_tiles.length == 0 || m_undoStack.size == 0)
+		if(m_isDisposed || !m_isInitialized || m_tiles.length == 0 || m_undoStack.size == 0)
 			return;
 		
 		UndoStep undoStep = m_undoStack.pop();
@@ -211,6 +237,7 @@ public class Level {
 			m_tileTextures = null;
 			m_undoStack = null;
 			m_tiles = null;
+			m_isInitialized = false;
 			m_isDisposed = true;
 		}
 	}

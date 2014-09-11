@@ -13,20 +13,21 @@ public class GameScreen implements Screen {
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
 	private Array<Texture> m_tileTextures;
+	private StatusPanel m_statusPanel;
 	private LevelPack m_levelPack;
 	private Level m_currentLevel = null;
 	private int m_currentLevelIndex = 0;
 	
 	public GameScreen() {
 		loadTiles();
-		
 		m_spriteBatch = new SpriteBatch();
 		m_camera = new OrthographicCamera();
 		m_camera.setToOrtho(false, 800, 480);
 		m_camera.zoom = 2.0f;
+		m_statusPanel = new StatusPanel();
 		m_levelPack = new LevelPack("levels/pack_01.txt", m_spriteBatch, m_camera, m_tileTextures);
-		if(m_levelPack.getLevelCount() > 0)
-			m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
+		
+		loadLevel(0);
 	}
 	
 	private void loadTiles() {
@@ -44,31 +45,57 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClearColor(0.0f, 0.45f, 1.0f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		if(m_currentLevel == null)
-			return;
-		
+		if(m_currentLevel != null) {
+			handleInput();
+			m_currentLevel.render();
+			m_statusPanel.act(delta);
+			m_statusPanel.render();
+		}
+	}
+	
+	private void handleInput() {
 		if(Gdx.input.isKeyJustPressed(Keys.UP) || Gdx.input.isKeyJustPressed(Keys.W))
-			m_currentLevel.movePlayer(0, -1);
+			movePlayer(0, -1);
 		if(Gdx.input.isKeyJustPressed(Keys.DOWN) || Gdx.input.isKeyJustPressed(Keys.S))
-			m_currentLevel.movePlayer(0, 1);
+			movePlayer(0, 1);
 		if(Gdx.input.isKeyJustPressed(Keys.LEFT) || Gdx.input.isKeyJustPressed(Keys.A))
-			m_currentLevel.movePlayer(-1, 0);
+			movePlayer(-1, 0);
 		if(Gdx.input.isKeyJustPressed(Keys.RIGHT) || Gdx.input.isKeyJustPressed(Keys.D))
-			m_currentLevel.movePlayer(1, 0);
+			movePlayer(1, 0);
 		if(Gdx.input.isKeyJustPressed(Keys.Z))
-			m_currentLevel.undoMovePlayer();
+			undoMovePlayer();
 		if(Gdx.input.isKeyJustPressed(Keys.COMMA))
 			cycleLevelLeft();
 		if(Gdx.input.isKeyJustPressed(Keys.PERIOD))
 			cycleLevelRight();
-		
-		m_currentLevel.render();
+	}
+	
+	private void movePlayer(int dx, int dy) {
+		m_currentLevel.movePlayer(dx, dy);
+		m_statusPanel.setMoveCount(m_currentLevel.getMoveCount());
+		m_statusPanel.setUndoCount(m_currentLevel.getUndoCount());
+	}
+	
+	private void undoMovePlayer() {
+		m_currentLevel.undoMovePlayer();
+		m_statusPanel.setUndoCount(m_currentLevel.getUndoCount());
+	}
+	
+	private void loadLevel(int index) {
+		if(index >= 0 && index < m_levelPack.getLevelCount()) {
+			m_currentLevelIndex = index;
+			m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
+			m_statusPanel.reset();
+			m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());
+		}
 	}
 	
 	private void cycleLevelLeft() {
 		if(m_currentLevelIndex > 0) {
 			m_currentLevelIndex--;
 			m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
+			m_statusPanel.reset();
+			m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());
 		}
 	}
 	
@@ -76,6 +103,8 @@ public class GameScreen implements Screen {
 		if(m_currentLevelIndex < m_levelPack.getLevelCount() - 1) {
 			m_currentLevelIndex++;
 			m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
+			m_statusPanel.reset();
+			m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());
 		}
 	}
 	
@@ -101,7 +130,8 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		m_currentLevel.dispose();
+		m_currentLevel = null;
+		m_statusPanel.dispose();
 		m_levelPack.dispose();
 		m_spriteBatch.dispose();
 		
