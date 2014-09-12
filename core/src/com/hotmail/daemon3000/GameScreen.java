@@ -1,5 +1,6 @@
 package com.hotmail.daemon3000;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
@@ -10,22 +11,43 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
 public class GameScreen implements Screen {
+	private Game m_game;
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
 	private Array<Texture> m_tileTextures;
 	private StatusPanel m_statusPanel;
+	private PauseMenu m_pauseMenu;
 	private LevelPack m_levelPack;
 	private Level m_currentLevel = null;
+	private float m_elapsedTime = 0.0f;
 	private int m_currentLevelIndex = 0;
 	
-	public GameScreen() {
+	public GameScreen(Game game) {
 		loadTiles();
+		m_game = game;
 		m_spriteBatch = new SpriteBatch();
 		m_camera = new OrthographicCamera();
 		m_camera.setToOrtho(false, 800, 480);
 		m_camera.zoom = 2.0f;
 		m_statusPanel = new StatusPanel();
+		m_pauseMenu = new PauseMenu();
 		m_levelPack = new LevelPack("levels/pack_01.txt", m_spriteBatch, m_camera, m_tileTextures);
+		
+		m_pauseMenu.addResetLevelListener(new ActionListener() {
+			public void handle() {
+				resetLevel();
+			}
+		});
+		m_pauseMenu.addSkipLevelListener(new ActionListener() {
+			public void handle() {
+				skipLevel();
+			}
+		});
+		m_pauseMenu.addQuitLevelListener(new ActionListener() {
+			public void handle() {
+				quitLevel();
+			}
+		});
 		
 		loadLevel(0);
 	}
@@ -45,11 +67,21 @@ public class GameScreen implements Screen {
 		Gdx.gl.glClearColor(0.0f, 0.45f, 1.0f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		if(m_currentLevel != null) {
+		if(m_currentLevel == null)
+			return;
+		
+		if(!m_pauseMenu.isOpen()) {
 			handleInput();
 			m_currentLevel.render();
-			m_statusPanel.act(delta);
+			m_elapsedTime += delta;
+			m_statusPanel.setElapsedTime(m_elapsedTime);
 			m_statusPanel.render();
+		}
+		else {
+			m_currentLevel.render();
+			m_statusPanel.render();
+			m_pauseMenu.act(delta);
+			m_pauseMenu.render();
 		}
 	}
 	
@@ -64,10 +96,8 @@ public class GameScreen implements Screen {
 			movePlayer(1, 0);
 		if(Gdx.input.isKeyJustPressed(Keys.Z))
 			undoMovePlayer();
-		if(Gdx.input.isKeyJustPressed(Keys.COMMA))
-			cycleLevelLeft();
-		if(Gdx.input.isKeyJustPressed(Keys.PERIOD))
-			cycleLevelRight();
+		if(Gdx.input.isKeyJustPressed(Keys.ESCAPE))
+			m_pauseMenu.open();
 	}
 	
 	private void movePlayer(int dx, int dy) {
@@ -82,30 +112,28 @@ public class GameScreen implements Screen {
 	}
 	
 	private void loadLevel(int index) {
-		if(index >= 0 && index < m_levelPack.getLevelCount()) {
-			m_currentLevelIndex = index;
-			m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
-			m_statusPanel.reset();
-			m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());
-		}
+		m_currentLevelIndex = index;
+		m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
+		m_elapsedTime = 0.0f;
+		m_statusPanel.reset();
+		m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());
 	}
 	
-	private void cycleLevelLeft() {
-		if(m_currentLevelIndex > 0) {
-			m_currentLevelIndex--;
-			m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
-			m_statusPanel.reset();
-			m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());
-		}
+	private void resetLevel() {
+		m_pauseMenu.close();
+		loadLevel(m_currentLevelIndex);
 	}
 	
-	private void cycleLevelRight() {
+	private void skipLevel() {
 		if(m_currentLevelIndex < m_levelPack.getLevelCount() - 1) {
-			m_currentLevelIndex++;
-			m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
-			m_statusPanel.reset();
-			m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());
+			m_pauseMenu.close();
+			loadLevel(m_currentLevelIndex + 1);
 		}
+	}
+	
+	private void quitLevel() {
+		dispose();
+		m_game.setScreen(new StartScreen(m_game));
 	}
 	
 	@Override
@@ -132,6 +160,7 @@ public class GameScreen implements Screen {
 	public void dispose() {
 		m_currentLevel = null;
 		m_statusPanel.dispose();
+		m_pauseMenu.dispose();
 		m_levelPack.dispose();
 		m_spriteBatch.dispose();
 		

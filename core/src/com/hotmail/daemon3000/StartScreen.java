@@ -2,25 +2,22 @@ package com.hotmail.daemon3000;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class StartScreen implements Screen {
 	private Texture m_bodyTexture;
 	private Texture m_handTexture;
-	private Texture m_playButtonTexture;
-	private Texture m_exitButtonTexture;
+	private Skin m_uiSkin;
 	private Stage m_stage;
 	private Game m_game;
 	
 	public StartScreen(Game game) {
 		m_bodyTexture = new Texture(Gdx.files.internal("img/start_screen_player_body.png"));
 		m_handTexture = new Texture(Gdx.files.internal("img/start_screen_player_hand.png"));
-		m_playButtonTexture = new Texture(Gdx.files.internal("ui/img/play_button.png"));
-		m_exitButtonTexture = new Texture(Gdx.files.internal("ui/img/exit_button.png"));
+		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_stage = new Stage();
 		m_game = game;
 		
@@ -59,27 +56,30 @@ public class StartScreen implements Screen {
 	}
 	
 	private void createMenu() {
-		ImageButton playButton = new ImageButton(new SpriteDrawable(new Sprite(m_playButtonTexture)));
-		playButton.setPosition(0.0f, m_exitButtonTexture.getHeight() + 5);
-		playButton.addListener(new InputListener() {
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				m_game.setScreen(new GameScreen());
-				return true;
-			}
+		Button exitButton = new TextButton("Exit", m_uiSkin, "default");
+		exitButton.setWidth(150.0f);
+		exitButton.setHeight(50.0f);
+		exitButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				Gdx.app.exit();
+		    }
 		});
 		
-		ImageButton exitButton = new ImageButton(new SpriteDrawable(new Sprite(m_exitButtonTexture)));
-		exitButton.addListener(new InputListener() {
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-				Gdx.app.exit();
-				return true;
-			}
+		Button playButton = new TextButton("Play", m_uiSkin, "default");
+		playButton.setWidth(150.0f);
+		playButton.setHeight(50.0f);
+		playButton.setPosition(0.0f, playButton.getHeight() + 5);
+		playButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				m_game.setScreen(new GameScreen(m_game));
+				dispose();
+		    }
 		});
 		
 		Group buttons = new Group();
 		buttons.addActor(playButton);
 		buttons.addActor(exitButton);
-		buttons.setPosition(Gdx.graphics.getWidth() / 2 - m_playButtonTexture.getWidth() / 2, 50);
+		buttons.setPosition(Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, 50);
 		
 		m_stage.addActor(buttons);
 	}
@@ -115,9 +115,8 @@ public class StartScreen implements Screen {
 	@Override
 	public void dispose() {
 		m_stage.dispose();
+		m_uiSkin.dispose();
 		m_bodyTexture.dispose();
 		m_handTexture.dispose();
-		m_playButtonTexture.dispose();
-		m_exitButtonTexture.dispose();
 	}
 }

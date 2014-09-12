@@ -1,69 +1,48 @@
 package com.hotmail.daemon3000;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 
 public class StatusPanel {
-	private Texture m_panelTexture;
-	private BitmapFont m_font;
+	private Skin m_uiSkin;
 	private Stage m_stage;
 	private Label m_levelIndexLabel;
 	private Label m_moveCountLabel;
 	private Label m_undoCountLabel;
 	private Label m_elapsedTimeLabel;
-	private float m_elapsedTime;
 	
 	public StatusPanel() {
-		m_panelTexture = new Texture(Gdx.files.internal("ui/img/panel.png"));
-		m_font = new BitmapFont();
+		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_stage = new Stage();
-		m_elapsedTime = 0.0f;
 		
-		createTopPanel();
-		Gdx.input.setInputProcessor(m_stage);
+		createWidgets();
 	}
 	
-	private void createTopPanel() {
-		int screenHeight = Gdx.graphics.getHeight();
-		int screenWidth = Gdx.graphics.getWidth();
+	private void createWidgets() {
+		Window window = new Window("", m_uiSkin, "panel");
+		window.setMovable(false);
+		window.setWidth(Gdx.graphics.getWidth());
+		window.setHeight(30);
+		window.setPosition(0.0f, Gdx.graphics.getHeight() - 30);
 		
-		NinePatch panelPatch = new NinePatch(m_panelTexture, 20, 20, 20, 20);
-		Image topPanelBg = new Image(panelPatch);
-		topPanelBg.setWidth(screenWidth);
-		topPanelBg.setHeight(30);
-		topPanelBg.setPosition(0.0f, screenHeight - 30);
+		m_levelIndexLabel = new Label("Level: 0/0", m_uiSkin, "default");
+		window.addActor(m_levelIndexLabel);
+		m_levelIndexLabel.setPosition(10.0f, window.getHeight() / 2 - m_levelIndexLabel.getHeight() / 2);
 		
-		LabelStyle style = new LabelStyle(m_font, Color.WHITE);
-		m_levelIndexLabel = new Label("Level: 0/0", style);
-		m_levelIndexLabel.setPosition(10.0f, screenHeight - 25.0f);
+		m_elapsedTimeLabel = new Label("Time: 0.00", m_uiSkin, "default");
+		window.addActor(m_elapsedTimeLabel);
+		m_elapsedTimeLabel.setPosition(210.0f, window.getHeight() / 2 - m_elapsedTimeLabel.getHeight() / 2);
 		
-		m_elapsedTimeLabel = new Label("Time: 0.00", style);
-		m_elapsedTimeLabel.setPosition(210.0f, screenHeight - 25.0f);
+		m_moveCountLabel = new Label("Move Count: 0", m_uiSkin, "default");
+		window.addActor(m_moveCountLabel);
+		m_moveCountLabel.setPosition(410.0f, window.getHeight() / 2 - m_moveCountLabel.getHeight() / 2);
 		
-		m_moveCountLabel = new Label("Move Count: 0", style);
-		m_moveCountLabel.setPosition(410.0f, screenHeight - 25.0f);
+		m_undoCountLabel = new Label(String.format("Undo Count: 0/%d", Level.MAX_UNDO), m_uiSkin, "default");
+		window.addActor(m_undoCountLabel);
+		m_undoCountLabel.setPosition(610.0f, window.getHeight() / 2 - m_undoCountLabel.getHeight() / 2);
 		
-		m_undoCountLabel = new Label(String.format("Undo Count: 0/%d", Level.MAX_UNDO), style);
-		m_undoCountLabel.setPosition(610.0f, screenHeight - 25.0f);
-		
-		Group topPanel = new Group();
-		topPanel.addActor(topPanelBg);
-		topPanel.addActor(m_levelIndexLabel);
-		topPanel.addActor(m_elapsedTimeLabel);
-		topPanel.addActor(m_moveCountLabel);
-		topPanel.addActor(m_undoCountLabel);
-		
-		m_stage.addActor(topPanel);
-	}
-	
-	public void act(float delta) {
-		m_elapsedTime += delta;
-		m_elapsedTimeLabel.setText(String.format("Time: %.2f", m_elapsedTime));
+		m_stage.addActor(window);
 	}
 	
 	public void render() {
@@ -72,6 +51,10 @@ public class StatusPanel {
 	
 	public void setLevelIndex(int levelIndex, int levelCount) {
 		m_levelIndexLabel.setText(String.format("Level: %d/%d", levelIndex, levelCount));
+	}
+	
+	public void setElapsedTime(float elapsedTime) {
+		m_elapsedTimeLabel.setText(String.format("Time: %.2f", elapsedTime));
 	}
 	
 	public void setMoveCount(int moveCount) {
@@ -84,19 +67,16 @@ public class StatusPanel {
 	
 	public void reset() {
 		m_levelIndexLabel.setText("Level: 0/0");
+		m_elapsedTimeLabel.setText("Time: 0.00");
 		m_moveCountLabel.setText("Move Count: 0");
 		m_undoCountLabel.setText(String.format("Undo Count: 0/%d", Level.MAX_UNDO));
-		
-		m_elapsedTime = 0.0f;
-		m_elapsedTimeLabel.setText(String.format("", m_elapsedTime));
 	}
 	
 	public void dispose() {
 		m_moveCountLabel = null;
 		m_undoCountLabel = null;
 		m_elapsedTimeLabel = null;
+		m_uiSkin.dispose();
 		m_stage.dispose();
-		m_panelTexture.dispose();
-		m_font.dispose();
 	}
 }
