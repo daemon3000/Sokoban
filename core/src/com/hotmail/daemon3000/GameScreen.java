@@ -25,7 +25,7 @@ public class GameScreen implements Screen {
 	private float m_elapsedTime = 0.0f;
 	private int m_currentLevelIndex = 0;
 	
-	public GameScreen(Game game) {
+	public GameScreen(Game game, String levelPackFile, int startLevel) {
 		loadTiles();
 		m_game = game;
 		m_spriteBatch = new SpriteBatch();
@@ -36,7 +36,7 @@ public class GameScreen implements Screen {
 		m_statusPanel = new StatusPanel(m_uiSkin);
 		m_pauseMenu = new PauseMenu(m_uiSkin);
 		m_levelCompletePanel = new LevelCompletePanel(m_uiSkin);
-		m_levelPack = new LevelPack("levels/pack_01.txt", m_spriteBatch, m_camera, m_tileTextures);
+		m_levelPack = new LevelPack(levelPackFile, m_spriteBatch, m_camera, m_tileTextures);
 		
 		m_pauseMenu.addResetLevelListener(new ActionListener() {
 			public void handle() {
@@ -65,7 +65,7 @@ public class GameScreen implements Screen {
 			}
 		});
 		
-		loadLevel(0);
+		loadLevel(startLevel);
 	}
 	
 	private void loadTiles() {
@@ -134,11 +134,13 @@ public class GameScreen implements Screen {
 	private void loadLevel(int index) {
 		m_currentLevelIndex = index;
 		m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
-		m_currentLevel.addLevelCompleteListener(new ActionListener() {
-			public void handle() {
-				m_levelCompletePanel.open();
-			}
-		});
+		if(m_currentLevel != null) {
+			m_currentLevel.addLevelCompleteListener(new ActionListener() {
+				public void handle() {
+					m_levelCompletePanel.open();
+				}
+			});
+		}
 		m_elapsedTime = 0.0f;
 		m_statusPanel.reset();
 		m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());

@@ -37,7 +37,7 @@ public class LevelCompletePanel {
 		m_window.addActor(continueButton);
 		continueButton.setWidth(150);
 		continueButton.setHeight(30);
-		continueButton.setPosition(m_window.getWidth() / 2 - continueButton.getWidth() / 2, m_window.getHeight() / 2 + 5);
+		continueButton.setPosition(m_window.getWidth() / 2 - continueButton.getWidth() / 2, m_window.getHeight() / 2);
 		continueButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				for(ActionListener listener: m_continueGameListeners) {
@@ -51,7 +51,7 @@ public class LevelCompletePanel {
 		m_window.addActor(quitButton);
 		quitButton.setWidth(150);
 		quitButton.setHeight(30);
-		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, m_window.getHeight() / 2 - 35);
+		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, m_window.getHeight() / 2 - 40);
 		quitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				for(ActionListener listener: m_quitGameListeners) {

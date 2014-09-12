@@ -3,85 +3,55 @@ package com.hotmail.daemon3000;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.scenes.scene2d.*;
-import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class StartScreen implements Screen {
-	private Texture m_bodyTexture;
-	private Texture m_handTexture;
 	private Skin m_uiSkin;
 	private Stage m_stage;
+	private Window m_window;
 	private Game m_game;
 	
 	public StartScreen(Game game) {
-		m_bodyTexture = new Texture(Gdx.files.internal("img/start_screen_player_body.png"));
-		m_handTexture = new Texture(Gdx.files.internal("img/start_screen_player_hand.png"));
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_stage = new Stage();
 		m_game = game;
 		
-		createLogo();
-		createMenu();
+		createWidgets();
 		Gdx.input.setInputProcessor(m_stage);
 	}
 	
-	private void createLogo() {
-		Image body = new Image(m_bodyTexture);
-		Image hand = new Image(m_handTexture);
-		hand.setOrigin(m_handTexture.getWidth() * 0.5f, m_handTexture.getHeight() * 0.94f);
-		hand.setPosition(121.0f, 30.0f);
-		hand.setRotation(150);
+	private void createWidgets() {
+		m_window = new Window("Main Menu", m_uiSkin, "default");
+		m_window.setMovable(false);
+		m_window.setWidth(200);
+		m_window.setHeight(150);
+		m_window.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
-		RotateToAction rotateForward = new RotateToAction();
-		rotateForward.setRotation(130.0f);
-		rotateForward.setDuration(0.5f);
+		Button playButton = new TextButton("Play", m_uiSkin, "default");
+		m_window.addActor(playButton);
+		playButton.setWidth(150.0f);
+		playButton.setHeight(30.0f);
+		playButton.setPosition(m_window.getWidth() / 2 - playButton.getWidth() / 2, m_window.getHeight() / 2);
+		playButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				m_game.setScreen(new LevelSelectScreen(m_game));
+				dispose();
+		    }
+		});
 		
-		RotateToAction rotateBack = new RotateToAction();
-		rotateBack.setRotation(150.0f);
-		rotateBack.setDuration(0.5f);
-		
-		RepeatAction handWave = new RepeatAction();
-		handWave.setAction(new SequenceAction(rotateForward, rotateBack));
-		handWave.setCount(RepeatAction.FOREVER);
-		
-		hand.addAction(handWave);
-		
-		Group logo = new Group();
-		logo.addActor(body);
-		logo.addActor(hand);
-		logo.setPosition(Gdx.graphics.getWidth() / 2 - m_bodyTexture.getWidth() / 2, Gdx.graphics.getHeight() / 2 - 25);
-		
-		m_stage.addActor(logo);
-	}
-	
-	private void createMenu() {
 		Button exitButton = new TextButton("Exit", m_uiSkin, "default");
+		m_window.addActor(exitButton);
 		exitButton.setWidth(150.0f);
-		exitButton.setHeight(50.0f);
+		exitButton.setHeight(30.0f);
+		exitButton.setPosition(m_window.getWidth() / 2 - exitButton.getWidth() / 2, m_window.getHeight() / 2 - 40);
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				Gdx.app.exit();
 		    }
 		});
 		
-		Button playButton = new TextButton("Play", m_uiSkin, "default");
-		playButton.setWidth(150.0f);
-		playButton.setHeight(50.0f);
-		playButton.setPosition(0.0f, playButton.getHeight() + 5);
-		playButton.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				m_game.setScreen(new GameScreen(m_game));
-				dispose();
-		    }
-		});
-		
-		Group buttons = new Group();
-		buttons.addActor(playButton);
-		buttons.addActor(exitButton);
-		buttons.setPosition(Gdx.graphics.getWidth() / 2 - exitButton.getWidth() / 2, 50);
-		
-		m_stage.addActor(buttons);
+		m_stage.addActor(m_window);
 	}
 	
 	@Override
@@ -116,7 +86,5 @@ public class StartScreen implements Screen {
 	public void dispose() {
 		m_stage.dispose();
 		m_uiSkin.dispose();
-		m_bodyTexture.dispose();
-		m_handTexture.dispose();
 	}
 }
