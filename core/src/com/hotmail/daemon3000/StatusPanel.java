@@ -12,8 +12,8 @@ public class StatusPanel {
 	private Label m_undoCountLabel;
 	private Label m_elapsedTimeLabel;
 	
-	public StatusPanel() {
-		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+	public StatusPanel(Skin uiSkin) {
+		m_uiSkin = uiSkin;
 		m_stage = new Stage();
 		
 		createWidgets();
@@ -76,7 +76,6 @@ public class StatusPanel {
 		m_moveCountLabel = null;
 		m_undoCountLabel = null;
 		m_elapsedTimeLabel = null;
-		m_uiSkin.dispose();
 		m_stage.dispose();
 	}
 }

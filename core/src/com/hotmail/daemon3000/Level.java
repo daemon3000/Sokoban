@@ -12,12 +12,15 @@ public class Level {
 	private OrthographicCamera m_camera;
 	private Array<Texture> m_tileTextures;
 	private Array<UndoStep> m_undoStack;
+	private Array<ActionListener> m_levelCompleteListeners;
 	private byte[] m_tiles;
 	private int m_width = 0;
 	private int m_height = 0;
 	private int m_playerPosX = 0;
 	private int m_playerPosY = 0;
 	private int m_moveCount = 0;
+	private int m_goalCount = 0;
+	private int m_currentActiveGoals = 0;
 	private boolean m_isDisposed = false;
 	private boolean m_isInitialized = false;
 	
@@ -26,6 +29,7 @@ public class Level {
 		m_camera = camera;
 		m_tileTextures = tileTextures;
 		m_undoStack = new Array<UndoStep>(MAX_UNDO + 1);
+		m_levelCompleteListeners = new Array<ActionListener>();
 		m_tiles = new byte[tileCapacity];
 		
 		initialize(levelData);
@@ -52,9 +56,12 @@ public class Level {
 		m_height = levelData.height;
 		m_playerPosX = levelData.playerPosX;
 		m_playerPosY = levelData.playerPosY;
+		m_goalCount = levelData.goalCount;
+		m_currentActiveGoals = levelData.activeGoalCountAtStart;
 		m_camera.position.set(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, 0);
 		m_moveCount = 0;
 		m_undoStack.clear();
+		m_levelCompleteListeners.clear();
 		m_isInitialized = true;
 	}
 	
@@ -124,6 +131,12 @@ public class Level {
 			}
 			m_undoStack.set(m_undoStack.size - 1, undoStep);
 		}
+		
+		if(m_currentActiveGoals == m_goalCount) {
+			for(ActionListener listener: m_levelCompleteListeners) {
+				listener.handle();
+			}
+		}
 	}
 	
 	private boolean isWallInDirection(int dx, int dy) {
@@ -150,19 +163,25 @@ public class Level {
 			return false;
 		
 		int tile = getTileAt(cratePosX, cratePosY);
-		if(tile == Tiles.TILE_CRATE)
+		if(tile == Tiles.TILE_CRATE) {
 			setTileAt(cratePosX, cratePosY, Tiles.TILE_EMPTY);
-		else if(tile == Tiles.TILE_CRATE_ON_GOAL)
+		}
+		else if(tile == Tiles.TILE_CRATE_ON_GOAL) {
 			setTileAt(cratePosX, cratePosY, Tiles.TILE_GOAL);
+			m_currentActiveGoals--;
+		}
 		
 		cratePosX += dx;
 		cratePosY += dy;
 		
 		tile = getTileAt(cratePosX, cratePosY);
-		if(tile == Tiles.TILE_EMPTY)
+		if(tile == Tiles.TILE_EMPTY) {
 			setTileAt(cratePosX, cratePosY, Tiles.TILE_CRATE);
-		else if(tile == Tiles.TILE_GOAL)
+		}
+		else if(tile == Tiles.TILE_GOAL) {
 			setTileAt(cratePosX, cratePosY, Tiles.TILE_CRATE_ON_GOAL);
+			m_currentActiveGoals++;
+		}
 		
 		return true;
 	}
@@ -195,19 +214,25 @@ public class Level {
 		
 		int cratePosX = m_playerPosX + 2 * undoStep.deltaX, cratePosY = m_playerPosY + 2 * undoStep.deltaY;
 		tile = getTileAt(cratePosX, cratePosY);
-		if(tile == Tiles.TILE_CRATE)
+		if(tile == Tiles.TILE_CRATE) {
 			setTileAt(cratePosX, cratePosY, Tiles.TILE_EMPTY);
-		else if(tile == Tiles.TILE_CRATE_ON_GOAL)
+		}
+		else if(tile == Tiles.TILE_CRATE_ON_GOAL) {
 			setTileAt(cratePosX, cratePosY, Tiles.TILE_GOAL);
+			m_currentActiveGoals--;
+		}
 		
 		cratePosX -= undoStep.deltaX;
 		cratePosY -= undoStep.deltaY;
 		
 		tile = getTileAt(cratePosX, cratePosY);
-		if(tile == Tiles.TILE_EMPTY)
+		if(tile == Tiles.TILE_EMPTY) {
 			setTileAt(cratePosX, cratePosY, Tiles.TILE_CRATE);
-		else if(tile == Tiles.TILE_GOAL)
+		}
+		else if(tile == Tiles.TILE_GOAL) {
 			setTileAt(cratePosX, cratePosY, Tiles.TILE_CRATE_ON_GOAL);
+			m_currentActiveGoals++;
+		}
 	}
 	
 	private int getTileAt(int x, int y) {
@@ -228,6 +253,10 @@ public class Level {
 	
 	public int getMoveCount() {
 		return m_moveCount;
+	}
+	
+	public void addLevelCompleteListener(ActionListener listener) {
+		m_levelCompleteListeners.add(listener);
 	}
 	
 	public void dispose() {

@@ -1,6 +1,7 @@
 package com.hotmail.daemon3000;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -9,17 +10,17 @@ import com.badlogic.gdx.utils.Array;
 public class PauseMenu {
 	private Array<ActionListener> m_resetLevelListeners;
 	private Array<ActionListener> m_skipLevelListeners;
-	private Array<ActionListener> m_quitLevelListeners;
+	private Array<ActionListener> m_quitGameListeners;
 	private Skin m_uiSkin;
 	private Stage m_stage;
 	private Window m_window;
 	private boolean m_isOpen = false;
 	
-	public PauseMenu() {
+	public PauseMenu(Skin uiSkin) {
 		m_resetLevelListeners = new Array<ActionListener>();
 		m_skipLevelListeners = new Array<ActionListener>();
-		m_quitLevelListeners = new Array<ActionListener>();
-		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+		m_quitGameListeners = new Array<ActionListener>();
+		m_uiSkin = uiSkin;
 		m_stage = new Stage();
 		
 		createWidgets();
@@ -76,7 +77,7 @@ public class PauseMenu {
 		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, m_window.getHeight() / 2 - 85);
 		quitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				for(ActionListener listener: m_quitLevelListeners) {
+				for(ActionListener listener: m_quitGameListeners) {
 					listener.handle();
 				}
 		    }
@@ -85,12 +86,12 @@ public class PauseMenu {
 		m_stage.addActor(m_window);
 	}
 	
-	public void act(float delta) {
+	public void render(float delta) {
 		m_stage.act(delta);
-	}
-	
-	public void render() {
 		m_stage.draw();
+		
+		if(Gdx.input.isKeyJustPressed(Keys.ESCAPE))
+			close();
 	}
 	
 	public boolean isOpen() {
@@ -117,13 +118,11 @@ public class PauseMenu {
 		m_skipLevelListeners.add(listener);
 	}
 	
-	public void addQuitLevelListener(ActionListener listener) {
-		m_quitLevelListeners.add(listener);
+	public void addQuitGameListener(ActionListener listener) {
+		m_quitGameListeners.add(listener);
 	}
 	
 	public void dispose() {
-		m_window = null;
-		m_uiSkin.dispose();
 		m_stage.dispose();
 	}
 }

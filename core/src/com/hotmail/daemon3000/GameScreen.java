@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 
 public class GameScreen implements Screen {
@@ -15,8 +16,10 @@ public class GameScreen implements Screen {
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
 	private Array<Texture> m_tileTextures;
+	private Skin m_uiSkin;
 	private StatusPanel m_statusPanel;
 	private PauseMenu m_pauseMenu;
+	private LevelCompletePanel m_levelCompletePanel;
 	private LevelPack m_levelPack;
 	private Level m_currentLevel = null;
 	private float m_elapsedTime = 0.0f;
@@ -29,8 +32,10 @@ public class GameScreen implements Screen {
 		m_camera = new OrthographicCamera();
 		m_camera.setToOrtho(false, 800, 480);
 		m_camera.zoom = 2.0f;
-		m_statusPanel = new StatusPanel();
-		m_pauseMenu = new PauseMenu();
+		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+		m_statusPanel = new StatusPanel(m_uiSkin);
+		m_pauseMenu = new PauseMenu(m_uiSkin);
+		m_levelCompletePanel = new LevelCompletePanel(m_uiSkin);
 		m_levelPack = new LevelPack("levels/pack_01.txt", m_spriteBatch, m_camera, m_tileTextures);
 		
 		m_pauseMenu.addResetLevelListener(new ActionListener() {
@@ -40,12 +45,23 @@ public class GameScreen implements Screen {
 		});
 		m_pauseMenu.addSkipLevelListener(new ActionListener() {
 			public void handle() {
-				skipLevel();
+				loadNextLevel();
 			}
 		});
-		m_pauseMenu.addQuitLevelListener(new ActionListener() {
+		m_pauseMenu.addQuitGameListener(new ActionListener() {
 			public void handle() {
-				quitLevel();
+				quitGame();
+			}
+		});
+		
+		m_levelCompletePanel.addContinueGameListener(new ActionListener() {
+			public void handle() {
+				loadNextLevel();
+			}
+		});
+		m_levelCompletePanel.addQuitGameListener(new ActionListener() {
+			public void handle() {
+				quitGame();
 			}
 		});
 		
@@ -70,18 +86,22 @@ public class GameScreen implements Screen {
 		if(m_currentLevel == null)
 			return;
 		
-		if(!m_pauseMenu.isOpen()) {
+		if(m_pauseMenu.isOpen()) {
+			m_currentLevel.render();
+			m_statusPanel.render();
+			m_pauseMenu.render(delta);
+		}
+		else if(m_levelCompletePanel.isOpen()) {
+			m_currentLevel.render();
+			m_statusPanel.render();
+			m_levelCompletePanel.render(delta);
+		}
+		else {
 			handleInput();
 			m_currentLevel.render();
 			m_elapsedTime += delta;
 			m_statusPanel.setElapsedTime(m_elapsedTime);
 			m_statusPanel.render();
-		}
-		else {
-			m_currentLevel.render();
-			m_statusPanel.render();
-			m_pauseMenu.act(delta);
-			m_pauseMenu.render();
 		}
 	}
 	
@@ -114,6 +134,11 @@ public class GameScreen implements Screen {
 	private void loadLevel(int index) {
 		m_currentLevelIndex = index;
 		m_currentLevel = m_levelPack.getLevel(m_currentLevelIndex);
+		m_currentLevel.addLevelCompleteListener(new ActionListener() {
+			public void handle() {
+				m_levelCompletePanel.open();
+			}
+		});
 		m_elapsedTime = 0.0f;
 		m_statusPanel.reset();
 		m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());
@@ -124,14 +149,14 @@ public class GameScreen implements Screen {
 		loadLevel(m_currentLevelIndex);
 	}
 	
-	private void skipLevel() {
+	private void loadNextLevel() {
 		if(m_currentLevelIndex < m_levelPack.getLevelCount() - 1) {
 			m_pauseMenu.close();
 			loadLevel(m_currentLevelIndex + 1);
 		}
 	}
 	
-	private void quitLevel() {
+	private void quitGame() {
 		dispose();
 		m_game.setScreen(new StartScreen(m_game));
 	}

@@ -87,6 +87,7 @@ public class LevelPack {
 	private void createLevel(Array<String> levelLines, int levelWidth) {
 		int levelHeight = levelLines.size;
 		int playerPosX = 0, playerPosY = 0;
+		int goalCount = 0, activeGoalCountAtStart = 0;
 		byte[] tiles = new byte[levelLines.size * levelWidth];
 		
 		int count = 0, lineLength = 0;
@@ -107,14 +108,18 @@ public class LevelPack {
 					break;
 				case '.':
 					tiles[count] = Tiles.TILE_GOAL;
+					goalCount++;
 					break;
 				case '+':
 					tiles[count] = Tiles.TILE_PLAYER_ON_GOAL;
 					playerPosX = i;
 					playerPosY = count / levelWidth;
+					goalCount++;
 					break;
 				case '*':
 					tiles[count] = Tiles.TILE_CRATE_ON_GOAL;
+					goalCount++;
+					activeGoalCountAtStart++;
 					break;
 				default:
 					tiles[count] = Tiles.TILE_EMPTY;
@@ -128,7 +133,7 @@ public class LevelPack {
 			}
 		}
 		
-		m_levels.add(new LevelData(tiles, levelWidth, levelHeight, playerPosX, playerPosY));
+		m_levels.add(new LevelData(tiles, levelWidth, levelHeight, playerPosX, playerPosY, goalCount, activeGoalCountAtStart));
 	}
 	
 	public int getLevelCount() {
