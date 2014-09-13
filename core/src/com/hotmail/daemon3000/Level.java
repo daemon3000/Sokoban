@@ -6,11 +6,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.*;
 
 public class Level {
-	public static final int MAX_UNDO = 30;
+	private static final int MAX_UNDO_STEPS = 32;
 	
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
 	private Array<Texture> m_tileTextures;
+	private Pool<UndoStep> m_undoPool;
 	private Array<UndoStep> m_undoStack;
 	private Array<ActionListener> m_levelCompleteListeners;
 	private byte[] m_tiles;
@@ -28,7 +29,13 @@ public class Level {
 		m_spriteBatch = batch;
 		m_camera = camera;
 		m_tileTextures = tileTextures;
-		m_undoStack = new Array<UndoStep>(MAX_UNDO + 1);
+		m_undoStack = new Array<UndoStep>(MAX_UNDO_STEPS + 1);
+		m_undoPool = new Pool<UndoStep>(MAX_UNDO_STEPS + 1) {
+			@Override 
+			protected UndoStep newObject() {
+				return new UndoStep();
+			}
+		};
 		m_levelCompleteListeners = new Array<ActionListener>();
 		m_tiles = new byte[tileCapacity];
 		
@@ -39,7 +46,7 @@ public class Level {
 		m_spriteBatch = batch;
 		m_camera = camera;
 		m_tileTextures = tileTextures;
-		m_undoStack = new Array<UndoStep>(MAX_UNDO + 1);
+		m_undoStack = new Array<UndoStep>(MAX_UNDO_STEPS + 1);
 		m_tiles = new byte[tileCapacity];
 	}
 	
@@ -60,9 +67,10 @@ public class Level {
 		m_currentActiveGoals = levelData.activeGoalCountAtStart;
 		m_camera.position.set(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, 0);
 		m_moveCount = 0;
-		m_undoStack.clear();
 		m_levelCompleteListeners.clear();
 		m_isInitialized = true;
+		
+		clearUndoStack();
 	}
 	
 	public void render() {
@@ -91,16 +99,13 @@ public class Level {
 		if(m_isDisposed || !m_isInitialized || m_tiles.length == 0)
 			return;
 		
-		UndoStep undoStep = new UndoStep();
-		undoStep.deltaX = dx;
-		undoStep.deltaY = dy;
-		undoStep.movedCrate = false;
+		boolean movedCrate = false;
 		
 		if(isWallInDirection(dx, dy))
 			return;
 		if(isCrateInDirection(dx, dy)) {
 			if(moveCrate(dx, dy))
-				undoStep.movedCrate = true;
+				movedCrate = true;
 			else
 				return;
 		}
@@ -122,21 +127,7 @@ public class Level {
 		else if(tile == Tiles.TILE_GOAL)
 			setTileAt(m_playerPosX, m_playerPosY, Tiles.TILE_PLAYER_ON_GOAL);
 		
-		if(m_undoStack.size < MAX_UNDO) {
-			m_undoStack.add(undoStep);
-		}
-		else {
-			for(int i = 0; i < m_undoStack.size - 1; i++) {
-				m_undoStack.set(i, m_undoStack.get(i + 1));
-			}
-			m_undoStack.set(m_undoStack.size - 1, undoStep);
-		}
-		
-		if(m_currentActiveGoals == m_goalCount) {
-			for(ActionListener listener: m_levelCompleteListeners) {
-				listener.handle();
-			}
-		}
+		registerUndoStep(dx, dy, movedCrate);
 	}
 	
 	private boolean isWallInDirection(int dx, int dy) {
@@ -209,8 +200,10 @@ public class Level {
 		
 		m_camera.position.set(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, 0);
 		
-		if(!undoStep.movedCrate)
+		if(!undoStep.movedCrate) {
+			m_undoPool.free(undoStep);
 			return;
+		}
 		
 		int cratePosX = m_playerPosX + 2 * undoStep.deltaX, cratePosY = m_playerPosY + 2 * undoStep.deltaY;
 		tile = getTileAt(cratePosX, cratePosY);
@@ -233,6 +226,8 @@ public class Level {
 			setTileAt(cratePosX, cratePosY, Tiles.TILE_CRATE_ON_GOAL);
 			m_currentActiveGoals++;
 		}
+		
+		m_undoPool.free(undoStep);
 	}
 	
 	private int getTileAt(int x, int y) {
@@ -245,6 +240,32 @@ public class Level {
 	private void setTileAt(int x, int y, byte tile) {
 		if(x >= 0 && x < m_width && y >= 0 && y < m_height)
 			m_tiles[y * m_width + x] = tile;
+	}
+	
+	private void clearUndoStack() {
+		while(m_undoStack.size > 0) {
+			UndoStep undoStep = m_undoStack.pop();
+			m_undoPool.free(undoStep);
+		}
+	}
+	
+	private void registerUndoStep(int deltaX, int deltaY, boolean movedCrate) {
+		UndoStep undoStep = m_undoPool.obtain();
+		undoStep.init(deltaX, deltaY, movedCrate);
+		
+		if(m_undoStack.size < MAX_UNDO_STEPS) {
+			m_undoStack.add(undoStep);
+		}
+		else {
+			m_undoPool.free(m_undoStack.removeIndex(0));
+			m_undoStack.add(undoStep);
+		}
+		
+		if(m_currentActiveGoals == m_goalCount) {
+			for(ActionListener listener: m_levelCompleteListeners) {
+				listener.handle();
+			}
+		}
 	}
 	
 	public int getUndoCount() {
@@ -261,6 +282,8 @@ public class Level {
 	
 	public void dispose() {
 		if(!m_isDisposed) {
+			m_undoStack.clear();
+			m_undoPool.clear();
 			m_spriteBatch = null;
 			m_camera = null;
 			m_tileTextures = null;

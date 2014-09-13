@@ -29,15 +29,14 @@ public class LevelCompletePanel {
 	private void createWidgets() {
 		m_window = new Window("Level Complete!", m_uiSkin, "default");
 		m_window.setMovable(false);
-		m_window.setWidth(200);
-		m_window.setHeight(150);
+		m_window.setWidth(250);
+		m_window.setHeight(200);
 		m_window.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
 		Button continueButton = new TextButton("Continue", m_uiSkin, "default");
 		m_window.addActor(continueButton);
-		continueButton.setWidth(150);
-		continueButton.setHeight(30);
-		continueButton.setPosition(m_window.getWidth() / 2 - continueButton.getWidth() / 2, m_window.getHeight() / 2);
+		continueButton.setWidth(220);
+		continueButton.setPosition(m_window.getWidth() / 2 - continueButton.getWidth() / 2, m_window.getHeight() / 2 - 5.0f);
 		continueButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				for(ActionListener listener: m_continueGameListeners) {
@@ -49,9 +48,8 @@ public class LevelCompletePanel {
 		
 		Button quitButton = new TextButton("Quit", m_uiSkin, "default");
 		m_window.addActor(quitButton);
-		quitButton.setWidth(150);
-		quitButton.setHeight(30);
-		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, m_window.getHeight() / 2 - 40);
+		quitButton.setWidth(220);
+		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, m_window.getHeight() / 2 - quitButton.getHeight() - 15.0f);
 		quitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				for(ActionListener listener: m_quitGameListeners) {

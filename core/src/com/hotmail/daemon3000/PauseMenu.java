@@ -29,15 +29,14 @@ public class PauseMenu {
 	private void createWidgets() {
 		m_window = new Window("Pause Menu", m_uiSkin, "default");
 		m_window.setMovable(false);
-		m_window.setWidth(200);
-		m_window.setHeight(200);
+		m_window.setWidth(250);
+		m_window.setHeight(300);
 		m_window.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
 		Button resumeButton = new TextButton("Resume", m_uiSkin, "default");
 		m_window.addActor(resumeButton);
-		resumeButton.setWidth(150);
-		resumeButton.setHeight(30);
-		resumeButton.setPosition(m_window.getWidth() / 2 - resumeButton.getWidth() / 2, m_window.getHeight() / 2 + 35);
+		resumeButton.setWidth(220);
+		resumeButton.setPosition(m_window.getWidth() / 2 - resumeButton.getWidth() / 2, m_window.getHeight() / 2 + resumeButton.getHeight() + 5.0f);
 		resumeButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				close();
@@ -46,9 +45,8 @@ public class PauseMenu {
 		
 		Button resetButton = new TextButton("Reset", m_uiSkin, "default");
 		m_window.addActor(resetButton);
-		resetButton.setWidth(150);
-		resetButton.setHeight(30);
-		resetButton.setPosition(m_window.getWidth() / 2 - resetButton.getWidth() / 2, m_window.getHeight() / 2 - 5);
+		resetButton.setWidth(220);
+		resetButton.setPosition(m_window.getWidth() / 2 - resetButton.getWidth() / 2, resumeButton.getY() - resetButton.getHeight() - 10.0f);
 		resetButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				for(ActionListener listener: m_resetLevelListeners) {
@@ -59,9 +57,8 @@ public class PauseMenu {
 		
 		Button skipButton = new TextButton("Skip", m_uiSkin, "default");
 		m_window.addActor(skipButton);
-		skipButton.setWidth(150);
-		skipButton.setHeight(30);
-		skipButton.setPosition(m_window.getWidth() / 2 - skipButton.getWidth() / 2, m_window.getHeight() / 2 - 45);
+		skipButton.setWidth(220);
+		skipButton.setPosition(m_window.getWidth() / 2 - skipButton.getWidth() / 2, resetButton.getY() - skipButton.getHeight() - 10.0f);
 		skipButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				for(ActionListener listener: m_skipLevelListeners) {
@@ -72,9 +69,8 @@ public class PauseMenu {
 		
 		Button quitButton = new TextButton("Quit", m_uiSkin, "default");
 		m_window.addActor(quitButton);
-		quitButton.setWidth(150);
-		quitButton.setHeight(30);
-		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, m_window.getHeight() / 2 - 85);
+		quitButton.setWidth(220);
+		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, skipButton.getY() - quitButton.getHeight() - 10.0f);
 		quitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				for(ActionListener listener: m_quitGameListeners) {

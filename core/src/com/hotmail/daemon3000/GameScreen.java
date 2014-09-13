@@ -123,12 +123,10 @@ public class GameScreen implements Screen {
 	private void movePlayer(int dx, int dy) {
 		m_currentLevel.movePlayer(dx, dy);
 		m_statusPanel.setMoveCount(m_currentLevel.getMoveCount());
-		m_statusPanel.setUndoCount(m_currentLevel.getUndoCount());
 	}
 	
 	private void undoMovePlayer() {
 		m_currentLevel.undoMovePlayer();
-		m_statusPanel.setUndoCount(m_currentLevel.getUndoCount());
 	}
 	
 	private void loadLevel(int index) {

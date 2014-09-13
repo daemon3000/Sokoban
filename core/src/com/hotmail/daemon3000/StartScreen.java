@@ -24,15 +24,14 @@ public class StartScreen implements Screen {
 	private void createWidgets() {
 		m_window = new Window("Main Menu", m_uiSkin, "default");
 		m_window.setMovable(false);
-		m_window.setWidth(200);
-		m_window.setHeight(150);
+		m_window.setWidth(250);
+		m_window.setHeight(200);
 		m_window.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
 		Button playButton = new TextButton("Play", m_uiSkin, "default");
 		m_window.addActor(playButton);
-		playButton.setWidth(150.0f);
-		playButton.setHeight(30.0f);
-		playButton.setPosition(m_window.getWidth() / 2 - playButton.getWidth() / 2, m_window.getHeight() / 2);
+		playButton.setWidth(220.0f);
+		playButton.setPosition(m_window.getWidth() / 2 - playButton.getWidth() / 2, m_window.getHeight() / 2 - 5.0f);
 		playButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_game.setScreen(new LevelSelectScreen(m_game));
@@ -42,9 +41,8 @@ public class StartScreen implements Screen {
 		
 		Button exitButton = new TextButton("Exit", m_uiSkin, "default");
 		m_window.addActor(exitButton);
-		exitButton.setWidth(150.0f);
-		exitButton.setHeight(30.0f);
-		exitButton.setPosition(m_window.getWidth() / 2 - exitButton.getWidth() / 2, m_window.getHeight() / 2 - 40);
+		exitButton.setWidth(220.0f);
+		exitButton.setPosition(m_window.getWidth() / 2 - exitButton.getWidth() / 2, m_window.getHeight() / 2 - exitButton.getHeight() - 15.0f);
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				Gdx.app.exit();

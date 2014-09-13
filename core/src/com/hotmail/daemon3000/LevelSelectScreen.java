@@ -56,8 +56,8 @@ public class LevelSelectScreen implements Screen {
 	private void createWidgets() {
 		m_window = new Window("Select Level Pack", m_uiSkin, "default");
 		m_window.setMovable(false);
-		m_window.setWidth(200);
-		m_window.setHeight(200);
+		m_window.setWidth(300);
+		m_window.setHeight(300);
 		m_window.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
 		String packName = m_levelPacks.size > 0 ? m_levelPacks.get(0).name : "-";
@@ -65,51 +65,39 @@ public class LevelSelectScreen implements Screen {
 		
 		m_levelPackName = new Label("Name: " + packName, m_uiSkin, "default");
 		m_window.addActor(m_levelPackName);
-		m_levelPackName.setPosition(5.0f, m_window.getHeight() - 50.0f);
+		m_levelPackName.setPosition(15.0f, m_window.getHeight() - 80.0f);
 		
 		m_levelPackSize = new Label("Levels: " + packSize, m_uiSkin, "default");
 		m_window.addActor(m_levelPackSize);
-		m_levelPackSize.setPosition(5.0f, m_levelPackName.getY() - 25.0f);
+		m_levelPackSize.setPosition(15.0f, m_levelPackName.getY() - 25.0f);
 		
 		Label startAtLabel = new Label("Start At: ", m_uiSkin, "default");
 		m_window.addActor(startAtLabel);
-		startAtLabel.setWidth(85);
-		startAtLabel.setPosition(5.0f, m_levelPackSize.getY() - 30.0f);
+		startAtLabel.setWidth(90);
+		startAtLabel.setPosition(15.0f, m_levelPackSize.getY() - 45.0f);
 		
 		m_startLevel = new TextField("1", m_uiSkin, "default");
 		m_window.addActor(m_startLevel);
-		m_startLevel.setWidth(100);
-		m_startLevel.setHeight(30);
+		m_startLevel.setWidth(175);
 		m_startLevel.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
-		m_startLevel.setPosition(95.0f, m_levelPackSize.getY() - 35.0f);
+		m_startLevel.setPosition(110.0f, m_levelPackSize.getY() - 60.0f);
 		
-		Button cycleLeftButton = new TextButton("<", m_uiSkin, "default");
-		m_window.addActor(cycleLeftButton);
-		cycleLeftButton.setWidth(30.0f);
-		cycleLeftButton.setHeight(30.0f);
-		cycleLeftButton.setPosition(5.0f, 40.0f);
-		cycleLeftButton.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				cycleLevelPacksLeft();
-		    }
-		});
 		
-		Button cycleRightButton = new TextButton(">", m_uiSkin, "default");
-		m_window.addActor(cycleRightButton);
-		cycleRightButton.setWidth(30.0f);
-		cycleRightButton.setHeight(30.0f);
-		cycleRightButton.setPosition(m_window.getWidth() - 35.0f, 40.0f);
-		cycleRightButton.addListener(new ClickListener() {
+		Button cancelButton = new TextButton("Cancel", m_uiSkin, "default");
+		m_window.addActor(cancelButton);
+		cancelButton.setWidth(m_window.getWidth() - 20.0f);
+		cancelButton.setPosition(10.0f, 10.0f);
+		cancelButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				cycleLevelPacksRight();
+				m_game.setScreen(new StartScreen(m_game));
+				dispose();
 		    }
 		});
 		
 		Button startGameButton = new TextButton("Play", m_uiSkin, "default");
 		m_window.addActor(startGameButton);
-		startGameButton.setWidth(120.0f);
-		startGameButton.setHeight(30.0f);
-		startGameButton.setPosition(40.0f, 40.0f);
+		startGameButton.setWidth(160.0f);
+		startGameButton.setPosition(70.0f, cancelButton.getX() + startGameButton.getHeight() + 10.0f);
 		startGameButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				if(m_levelPacks.size > 0) {
@@ -119,15 +107,21 @@ public class LevelSelectScreen implements Screen {
 		    }
 		});
 		
-		Button cancelButton = new TextButton("Cancel", m_uiSkin, "default");
-		m_window.addActor(cancelButton);
-		cancelButton.setWidth(m_window.getWidth() - 10.0f);
-		cancelButton.setHeight(30.0f);
-		cancelButton.setPosition(5.0f, 5.0f);
-		cancelButton.addListener(new ClickListener() {
+		Button cycleLeftButton = new TextButton("<", m_uiSkin, "default");
+		m_window.addActor(cycleLeftButton);
+		cycleLeftButton.setPosition(15.0f, cancelButton.getX() + cycleLeftButton.getHeight() + 10.0f);
+		cycleLeftButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				m_game.setScreen(new StartScreen(m_game));
-				dispose();
+				cycleLevelPacksLeft();
+		    }
+		});
+		
+		Button cycleRightButton = new TextButton(">", m_uiSkin, "default");
+		m_window.addActor(cycleRightButton);
+		cycleRightButton.setPosition(m_window.getWidth() - 65.0f, cancelButton.getX() + cycleRightButton.getHeight() + 10.0f);
+		cycleRightButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				cycleLevelPacksRight();
 		    }
 		});
 		
