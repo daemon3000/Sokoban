@@ -3,13 +3,17 @@ package com.hotmail.daemon3000;
 import java.io.IOException;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Timer.Task;
 import com.badlogic.gdx.utils.XmlReader;
 
 public class LevelSelectScreen implements Screen {
@@ -19,6 +23,7 @@ public class LevelSelectScreen implements Screen {
 	private Label m_levelPackName;
 	private Label m_levelPackSize;
 	private TextField m_startLevel;
+	private Sound m_click;
 	private Array<LevelPackData> m_levelPacks;
 	private Game m_game;
 	private int m_currentLevelPack = 0;
@@ -26,6 +31,7 @@ public class LevelSelectScreen implements Screen {
 	public LevelSelectScreen(Game game) {
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_stage = new Stage();
+		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
 		m_levelPacks = new Array<LevelPackData>();
 		m_game = game;
 		
@@ -56,9 +62,12 @@ public class LevelSelectScreen implements Screen {
 	private void createWidgets() {
 		m_window = new Window("Select Level Pack", m_uiSkin, "default");
 		m_window.setMovable(false);
+		m_window.setKeepWithinStage(false);
 		m_window.setWidth(300);
 		m_window.setHeight(300);
-		m_window.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		
+		slideIn();
 		
 		String packName = m_levelPacks.size > 0 ? m_levelPacks.get(0).name : "-";
 		int packSize = m_levelPacks.size > 0 ? m_levelPacks.get(0).levelCount : 0;
@@ -89,8 +98,15 @@ public class LevelSelectScreen implements Screen {
 		cancelButton.setPosition(10.0f, 10.0f);
 		cancelButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
-				m_game.setScreen(new StartScreen(m_game));
-				dispose();
+				m_click.play();
+				slideOut();
+				Timer.schedule(new Task() {
+					@Override
+					public void run() {
+						m_game.setScreen(new StartScreen(m_game));
+						dispose();
+					};
+				}, 0.2f);
 		    }
 		});
 		
@@ -101,8 +117,15 @@ public class LevelSelectScreen implements Screen {
 		startGameButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				if(m_levelPacks.size > 0) {
-					m_game.setScreen(new GameScreen(m_game, m_levelPacks.get(m_currentLevelPack).file, parseStartLevel()));
-					dispose();
+					m_click.play();
+					slideOut();
+					Timer.schedule(new Task() {
+						@Override
+						public void run() {
+							m_game.setScreen(new GameScreen(m_game, m_levelPacks.get(m_currentLevelPack).file, parseStartLevel()));
+							dispose();
+						}
+					}, 0.2f);
 				}
 		    }
 		});
@@ -112,6 +135,7 @@ public class LevelSelectScreen implements Screen {
 		cycleLeftButton.setPosition(15.0f, cancelButton.getX() + cycleLeftButton.getHeight() + 10.0f);
 		cycleLeftButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
+				m_click.play();
 				cycleLevelPacksLeft();
 		    }
 		});
@@ -121,6 +145,7 @@ public class LevelSelectScreen implements Screen {
 		cycleRightButton.setPosition(m_window.getWidth() - 65.0f, cancelButton.getX() + cycleRightButton.getHeight() + 10.0f);
 		cycleRightButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
+				m_click.play();
 				cycleLevelPacksRight();
 		    }
 		});
@@ -152,6 +177,20 @@ public class LevelSelectScreen implements Screen {
 		catch(NumberFormatException ex) {
 			return 0;
 		}
+	}
+	
+	private void slideIn() {
+		MoveToAction moveAction = new MoveToAction();
+		moveAction.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		moveAction.setDuration(0.4f);
+		m_window.addAction(moveAction);
+	}
+	
+	private void slideOut() {
+		MoveToAction moveAction = new MoveToAction();
+		moveAction.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		moveAction.setDuration(0.2f);
+		m_window.addAction(moveAction);
 	}
 	
 	@Override
@@ -186,5 +225,6 @@ public class LevelSelectScreen implements Screen {
 	public void dispose() {
 		m_stage.dispose();
 		m_uiSkin.dispose();
+		m_click.dispose();
 	}
 }
