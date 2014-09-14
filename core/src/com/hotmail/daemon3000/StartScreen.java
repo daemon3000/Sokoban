@@ -15,9 +15,9 @@ public class StartScreen implements Screen {
 	private Stage m_stage;
 	private Window m_window;
 	private Sound m_click;
-	private Game m_game;
+	private SokobanGame m_game;
 	
-	public StartScreen(Game game) {
+	public StartScreen(SokobanGame game) {
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_stage = new Stage();
 		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
@@ -62,6 +62,7 @@ public class StartScreen implements Screen {
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_click.play();
+				m_game.saveScores();
 				Timer.schedule(new Task() {
 					@Override
 					public void run() {

@@ -17,14 +17,16 @@ public class LevelPack {
 	private Array<Texture> m_tileTextures;
 	private Array<LevelData> m_levels;
 	private int m_maxLevelSize;
+	private String m_id;
 	private Level m_lastLoadedLevel = null;
 	private boolean m_isDisposed = false;
 	
-	public LevelPack(String file, SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures) {
-		this(Gdx.files.internal(file), batch, camera, tileTextures);
+	public LevelPack(String id, String file, SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures) {
+		this(id, Gdx.files.internal(file), batch, camera, tileTextures);
 	}
 	
-	public LevelPack(FileHandle fileHandle, SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures) {
+	public LevelPack(String id, FileHandle fileHandle, SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures) {
+		m_id = id;
 		m_spriteBatch = batch;
 		m_camera = camera;
 		m_tileTextures = tileTextures;
@@ -159,6 +161,10 @@ public class LevelPack {
 		}
 		
 		return null;
+	}
+	
+	public String getID() {
+		return m_id;
 	}
 	
 	public void dispose() {

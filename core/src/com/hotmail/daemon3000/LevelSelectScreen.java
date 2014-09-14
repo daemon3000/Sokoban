@@ -25,10 +25,10 @@ public class LevelSelectScreen implements Screen {
 	private TextField m_startLevel;
 	private Sound m_click;
 	private Array<LevelPackData> m_levelPacks;
-	private Game m_game;
+	private SokobanGame m_game;
 	private int m_currentLevelPack = 0;
 	
-	public LevelSelectScreen(Game game) {
+	public LevelSelectScreen(SokobanGame game) {
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_stage = new Stage();
 		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
@@ -48,7 +48,7 @@ public class LevelSelectScreen implements Screen {
 			
 			for(int i = 0; i < childCount; i++) {
 				XmlReader.Element elem = root.getChild(i);
-				m_levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("file"), elem.getIntAttribute("levelCount")));
+				m_levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("id"), elem.getAttribute("file"), elem.getIntAttribute("levelCount")));
 			}
 		}
 		catch(GdxRuntimeException re) {
@@ -122,7 +122,8 @@ public class LevelSelectScreen implements Screen {
 					Timer.schedule(new Task() {
 						@Override
 						public void run() {
-							m_game.setScreen(new GameScreen(m_game, m_levelPacks.get(m_currentLevelPack).file, parseStartLevel()));
+							LevelPackData levelPackData = m_levelPacks.get(m_currentLevelPack);
+							m_game.setScreen(new GameScreen(m_game, levelPackData.id,  levelPackData.file, parseStartLevel()));
 							dispose();
 						}
 					}, 0.2f);

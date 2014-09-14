@@ -1,6 +1,5 @@
 package com.hotmail.daemon3000;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
@@ -15,7 +14,7 @@ import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
 public class GameScreen implements Screen {
-	private Game m_game;
+	private SokobanGame m_game;
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
 	private Array<Texture> m_tileTextures;
@@ -28,8 +27,10 @@ public class GameScreen implements Screen {
 	private Level m_currentLevel = null;
 	private float m_elapsedTime = 0.0f;
 	private int m_currentLevelIndex = 0;
+	private int m_bestMoves = 0;
+	private float m_bestTime = 0.0f; 
 	
-	public GameScreen(Game game, String levelPackFile, int startLevel) {
+	public GameScreen(SokobanGame game, String levelPackID, String levelPackFile, int startLevel) {
 		loadTiles();
 		m_game = game;
 		m_spriteBatch = new SpriteBatch();
@@ -41,7 +42,7 @@ public class GameScreen implements Screen {
 		m_statusPanel = new StatusPanel(m_uiSkin);
 		m_pauseMenu = new PauseMenu(m_uiSkin, m_click);
 		m_levelCompleteMenu = new LevelCompleteMenu(m_uiSkin, m_click);
-		m_levelPack = new LevelPack(levelPackFile, m_spriteBatch, m_camera, m_tileTextures);
+		m_levelPack = new LevelPack(levelPackID, levelPackFile, m_spriteBatch, m_camera, m_tileTextures);
 		
 		m_pauseMenu.addResetLevelListener(new ActionListener() {
 			public void handle() {
@@ -140,13 +141,28 @@ public class GameScreen implements Screen {
 		if(m_currentLevel != null) {
 			m_currentLevel.addLevelCompleteListener(new ActionListener() {
 				public void handle() {
-					m_levelCompleteMenu.open();
+					handleLevelComplete();
 				}
 			});
+			
+			GameScore gameScore = m_game.getScore(m_levelPack, m_currentLevelIndex);
+			m_bestMoves = gameScore != null ? gameScore.bestMoves : 0;
+			m_bestTime = gameScore != null ? gameScore.bestTime : 0.0f;
 		}
 		m_elapsedTime = 0.0f;
 		m_statusPanel.reset();
 		m_statusPanel.setLevelIndex(m_currentLevelIndex + 1, m_levelPack.getLevelCount());
+		m_statusPanel.setBestMoves(m_bestMoves);
+		m_statusPanel.setBestTime(m_bestTime);
+	}
+	
+	private void handleLevelComplete() {
+		int moveCount = m_currentLevel.getMoveCount();
+		
+		if((moveCount <= m_bestMoves || m_bestMoves <= 0) && (m_elapsedTime < m_bestTime || m_bestTime <= 0.0f)) {
+			m_game.setScore(m_levelPack, m_currentLevelIndex, moveCount, m_elapsedTime);
+		}
+		m_levelCompleteMenu.open();
 	}
 	
 	private void resetLevel() {

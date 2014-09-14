@@ -101,6 +101,10 @@ public class LevelCompleteMenu {
 		}, 0.2f);
 	}
 	
+	public void setWindowTitle(String title) {
+		m_window.setTitle(title);
+	}
+	
 	public void addContinueGameListener(ActionListener listener) {
 		m_continueGameListeners.add(listener);
 	}
@@ -110,8 +114,6 @@ public class LevelCompleteMenu {
 	}
 	
 	private void slideIn() {
-//		m_window.setX(Gdx.graphics.getWidth() + m_window.getWidth());
-		
 		MoveToAction moveAction = new MoveToAction();
 		moveAction.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		moveAction.setDuration(0.3f);
