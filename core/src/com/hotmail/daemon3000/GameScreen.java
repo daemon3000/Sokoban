@@ -35,7 +35,7 @@ public class GameScreen implements Screen {
 		m_game = game;
 		m_spriteBatch = new SpriteBatch();
 		m_camera = new OrthographicCamera();
-		m_camera.setToOrtho(false, 800, 480);
+		m_camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		m_camera.zoom = 2.0f;
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
@@ -161,7 +161,11 @@ public class GameScreen implements Screen {
 		
 		if((moveCount <= m_bestMoves || m_bestMoves <= 0) && (m_elapsedTime < m_bestTime || m_bestTime <= 0.0f)) {
 			m_game.setScore(m_levelPack, m_currentLevelIndex, moveCount, m_elapsedTime);
+			m_levelCompleteMenu.setWindowTitle("New Record!");
 		}
+		else {
+			m_levelCompleteMenu.setWindowTitle("Level Complete!");
+		}	
 		m_levelCompleteMenu.open();
 	}
 	
