@@ -1,7 +1,7 @@
 {
 com.badlogic.gdx.graphics.Color: {
 	green: { a: 1, b: 0, g: 1, r: 0 },
-	blue: { a: 1, b: 1, g: 0, r: 0 },
+	blue: { a: 1, b: 1, g: 0.5, r: 0.11 },
 	gray: { a: 1, b: 0.5, g: 0.5, r: 0.5 },
 	white: { a: 1, b: 1, g: 1, r: 1 },
 	red: { a: 1, b: 0, g: 0, r: 1 },
@@ -31,7 +31,7 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: { font: default-font, fontColor: white }
 },
 com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
-	default: { background: text_field_alt, font: default-font, fontColor: gray }
+	default: { selection: selection, background: text_field_alt, font: default-font, fontColor: blue, cursor: cursor }
 },
 com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
 	default: { checkboxOn: checkbox_on_alt, checkboxOff: checkbox_off, font: default-font, fontColor: white }
