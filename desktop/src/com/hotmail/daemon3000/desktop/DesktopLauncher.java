@@ -12,7 +12,7 @@ public class DesktopLauncher {
 	public static LwjglApplicationConfiguration getSettings() {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 800;
-		config.height = 480;
+		config.height = 600;
 		config.title = "Sokoban";
 		config.resizable = false;
 		config.fullscreen = false;
