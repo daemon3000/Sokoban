@@ -22,6 +22,7 @@ public class LevelSelectScreen implements Screen {
 	private Window m_window;
 	private Label m_levelPackName;
 	private Label m_levelPackSize;
+	private Label m_levelPackAuthor;
 	private TextField m_startLevel;
 	private Sound m_click;
 	private Array<LevelPackData> m_levelPacks;
@@ -48,7 +49,9 @@ public class LevelSelectScreen implements Screen {
 			
 			for(int i = 0; i < childCount; i++) {
 				XmlReader.Element elem = root.getChild(i);
-				m_levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("id"), elem.getAttribute("file"), elem.getIntAttribute("levelCount")));
+				m_levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("id"), 
+								 				  elem.getAttribute("file"), elem.getIntAttribute("levelCount"),
+								 				  elem.getAttribute("author")));
 			}
 		}
 		catch(GdxRuntimeException re) {
@@ -64,32 +67,35 @@ public class LevelSelectScreen implements Screen {
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(300);
-		m_window.setHeight(300);
+		m_window.setHeight(320);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
-		slideIn();
-		
-		String packName = m_levelPacks.size > 0 ? m_levelPacks.get(0).name : "-";
+		String packName = m_levelPacks.size > 0 ? m_levelPacks.get(0).name : "Unknown";
 		int packSize = m_levelPacks.size > 0 ? m_levelPacks.get(0).levelCount : 0;
+		String packAuthor = m_levelPacks.size > 0 ? m_levelPacks.get(0).author : "Unknown";
 		
 		m_levelPackName = new Label("Name: " + packName, m_uiSkin, "default");
 		m_window.addActor(m_levelPackName);
-		m_levelPackName.setPosition(15.0f, m_window.getHeight() - 80.0f);
+		m_levelPackName.setPosition(15.0f, m_window.getHeight() - 70.0f);
 		
 		m_levelPackSize = new Label("Levels: " + packSize, m_uiSkin, "default");
 		m_window.addActor(m_levelPackSize);
 		m_levelPackSize.setPosition(15.0f, m_levelPackName.getY() - 25.0f);
 		
+		m_levelPackAuthor = new Label("Author: " + packAuthor, m_uiSkin, "default");
+		m_window.addActor(m_levelPackAuthor);
+		m_levelPackAuthor.setPosition(15.0f, m_levelPackSize.getY() - 25.0f);
+		
 		Label startAtLabel = new Label("Start At: ", m_uiSkin, "default");
 		m_window.addActor(startAtLabel);
 		startAtLabel.setWidth(90);
-		startAtLabel.setPosition(15.0f, m_levelPackSize.getY() - 45.0f);
+		startAtLabel.setPosition(15.0f, m_levelPackAuthor.getY() - 45.0f);
 		
 		m_startLevel = new TextField("1", m_uiSkin, "default");
 		m_window.addActor(m_startLevel);
 		m_startLevel.setWidth(175);
 		m_startLevel.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
-		m_startLevel.setPosition(110.0f, m_levelPackSize.getY() - 60.0f);
+		m_startLevel.setPosition(110.0f, m_levelPackAuthor.getY() - 60.0f);
 		
 		
 		Button cancelButton = new TextButton("Cancel", m_uiSkin, "default");
@@ -152,6 +158,7 @@ public class LevelSelectScreen implements Screen {
 		});
 		
 		m_stage.addActor(m_window);
+		slideIn();
 	}
 	
 	private void cycleLevelPacksLeft() {
@@ -159,6 +166,7 @@ public class LevelSelectScreen implements Screen {
 			m_currentLevelPack--;
 			m_levelPackName.setText("Name: " + m_levelPacks.get(m_currentLevelPack).name);
 			m_levelPackSize.setText("Levels: " + m_levelPacks.get(m_currentLevelPack).levelCount);
+			m_levelPackAuthor.setText("Author: " + m_levelPacks.get(m_currentLevelPack).author);
 		}
 	}
 	
@@ -167,6 +175,7 @@ public class LevelSelectScreen implements Screen {
 			m_currentLevelPack++;
 			m_levelPackName.setText("Name: " + m_levelPacks.get(m_currentLevelPack).name);
 			m_levelPackSize.setText("Levels: " + m_levelPacks.get(m_currentLevelPack).levelCount);
+			m_levelPackAuthor.setText("Author: " + m_levelPacks.get(m_currentLevelPack).author);
 		}
 	}
 	

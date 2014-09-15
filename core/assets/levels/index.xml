@@ -1,5 +1,5 @@
 <levels>
-	<level name="Sasquatch I" file="levels/sasquatch_1.txt" levelCount="50" id="sasquatch_1" />
-	<level name="Sasquatch II" file="levels/sasquatch_2.txt" levelCount="50" id="sasquatch_2" />
-	<level name="Sasquatch III" file="levels/sasquatch_3.txt" levelCount="50" id="sasquatch_3" />
+	<level name="Sasquatch I" file="levels/sasquatch_1.txt" levelCount="50" id="sasquatch_1" author="David W. Skinner" />
+	<level name="Sasquatch II" file="levels/sasquatch_2.txt" levelCount="50" id="sasquatch_2" author="David W. Skinner" />
+	<level name="Sasquatch III" file="levels/sasquatch_3.txt" levelCount="50" id="sasquatch_3" author="David W. Skinner" />
 </levels>

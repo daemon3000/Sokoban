@@ -70,6 +70,7 @@ public class SokobanGame extends Game {
 			objStream.writeObject(m_highScores);
 			
 			file.writeBytes(stream.toByteArray(), false);
+			objStream.close();
 		}
 		catch(IOException ex) {
 		}
