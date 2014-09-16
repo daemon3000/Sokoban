@@ -6,12 +6,14 @@ public class LevelPackData {
 	public String file;
 	public String author;
 	public int levelCount;
+	public boolean isAddon;
 	
-	public LevelPackData(String name, String id, String file, int levelCount, String author) {
+	public LevelPackData(String name, String id, String file, int levelCount, String author, boolean isAddon) {
 		this.name = name;
 		this.file = file;
 		this.id = id;
 		this.author = author;
 		this.levelCount = levelCount;
+		this.isAddon = isAddon;
 	}
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.*;
@@ -37,12 +38,13 @@ public class LevelSelectScreen implements Screen {
 		m_levelPacks = new Array<LevelPackData>();
 		m_game = game;
 		
-		loadLevelPackList();
+		loadInternalLevelPackList();
+		loadAddonLevelPackList();
 		createWidgets();
 		Gdx.input.setInputProcessor(m_stage);
 	}
 	
-	private void loadLevelPackList() {
+	private void loadInternalLevelPackList() {
 		try {
 			XmlReader reader = new XmlReader();
 			XmlReader.Element root = reader.parse(Gdx.files.internal("levels/index.xml"));
@@ -52,7 +54,7 @@ public class LevelSelectScreen implements Screen {
 				XmlReader.Element elem = root.getChild(i);
 				m_levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("id"), 
 								 				  elem.getAttribute("file"), elem.getIntAttribute("levelCount"),
-								 				  elem.getAttribute("author")));
+								 				  elem.getAttribute("author"), false));
 			}
 		}
 		catch(GdxRuntimeException re) {
@@ -61,6 +63,35 @@ public class LevelSelectScreen implements Screen {
 		catch(IOException ioe) {
 			m_levelPacks.clear();
 		}
+	}
+	
+	private void loadAddonLevelPackList() {
+		FileHandle fileHandle = Gdx.files.local("addons/levels/index.xml");
+		if(!fileHandle.exists())
+			return;
+		
+		Array<LevelPackData> levelPacks = new Array<LevelPackData>();
+		try {
+			XmlReader reader = new XmlReader();
+			XmlReader.Element root = reader.parse(fileHandle);
+			int childCount = root.getChildCount();
+			
+			for(int i = 0; i < childCount; i++) {
+				XmlReader.Element elem = root.getChild(i);
+				levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("id"), 
+								 				  elem.getAttribute("file"), elem.getIntAttribute("levelCount"),
+								 				  elem.getAttribute("author"), true));
+			}
+		}
+		catch(GdxRuntimeException re) {
+			levelPacks.clear();
+		}
+		catch(IOException ioe) {
+			levelPacks.clear();
+		}
+		
+		if(levelPacks.size > 0)
+			m_levelPacks.addAll(levelPacks);
 	}
 	
 	private void createWidgets() {
@@ -132,7 +163,9 @@ public class LevelSelectScreen implements Screen {
 						@Override
 						public void run() {
 							LevelPackData levelPackData = m_levelPacks.get(m_currentLevelPack);
-							m_game.setScreen(new GameScreen(m_game, levelPackData.id,  levelPackData.file, parseStartLevel()));
+							FileHandle fileHandle = levelPackData.isAddon ? Gdx.files.local(levelPackData.file) :
+																			Gdx.files.internal(levelPackData.file);
+							m_game.setScreen(new GameScreen(m_game, levelPackData.id, fileHandle, parseStartLevel()));
 							dispose();
 						}
 					}, 0.2f);

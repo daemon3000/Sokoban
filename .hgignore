@@ -64,6 +64,7 @@ build/
 ## OS Specific
 .DS_Store
 
-## Profile
+## Desktop
 desktop/profile/
+desktop/addons/
 desktop/config.json

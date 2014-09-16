@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -31,7 +32,7 @@ public class GameScreen implements Screen {
 	private int m_bestMoves = 0;
 	private float m_bestTime = 0.0f; 
 	
-	public GameScreen(SokobanGame game, String levelPackID, String levelPackFile, int startLevel) {
+	public GameScreen(SokobanGame game, String levelPackID, FileHandle levelPackFile, int startLevel) {
 		loadTiles();
 		m_game = game;
 		m_spriteBatch = new SpriteBatch();

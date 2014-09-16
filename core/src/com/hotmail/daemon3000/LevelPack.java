@@ -3,7 +3,6 @@ package com.hotmail.daemon3000;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,10 +20,6 @@ public class LevelPack {
 	private String m_id;
 	private Level m_lastLoadedLevel = null;
 	private boolean m_isDisposed = false;
-	
-	public LevelPack(String id, String file, SpriteBatch batch, OrthographicCamera camera, TextureRegion[] tileRegions) {
-		this(id, Gdx.files.internal(file), batch, camera, tileRegions);
-	}
 	
 	public LevelPack(String id, FileHandle fileHandle, SpriteBatch batch, OrthographicCamera camera, TextureRegion[] tileRegions) {
 		m_id = id;
