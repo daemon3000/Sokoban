@@ -11,10 +11,20 @@ import com.hotmail.daemon3000.SokobanGame;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		new LwjglApplication(new SokobanGame(), getConfig());
+		DesktopSettings settings = loadSettings();
+		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		config.width = settings.width;
+		config.height = settings.height;
+		config.title = settings.title;
+		config.resizable = false;
+		config.fullscreen = settings.fullscreen;
+		config.useGL30 = settings.useGL30;
+		config.vSyncEnabled = settings.vSyncEnabled;
+		
+		new LwjglApplication(new SokobanGame(settings.language), config);
 	}
 	
-	private static LwjglApplicationConfiguration getConfig() {
+	private static DesktopSettings loadSettings() {
 		DesktopSettings settings = null;
 		try {
 			FileInputStream stream = new FileInputStream("config.json");
@@ -31,15 +41,6 @@ public class DesktopLauncher {
 				settings = new DesktopSettings();
 		}
 		
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = settings.width;
-		config.height = settings.height;
-		config.title = settings.title;
-		config.resizable = false;
-		config.fullscreen = settings.fullscreen;
-		config.useGL30 = settings.useGL30;
-		config.vSyncEnabled = settings.vSyncEnabled;
-		
-		return config;
+		return settings;
 	}
 }

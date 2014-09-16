@@ -2,19 +2,30 @@ package com.hotmail.daemon3000;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Locale;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.I18NBundle;
 
 public class SokobanGame extends Game {
+	private String m_language;
+	private I18NBundle m_stringBundle;
 	private Music m_gameMusic;
 	private HashMap<String, HashMap<Integer, GameScore>> m_highScores;
+	
+	public SokobanGame(String language) {
+		m_language = language;
+	}
 	
 	@Override
 	public void create() {
 		loadScores();
+		
+		Locale locale = new Locale(m_language);
+		m_stringBundle = I18NBundle.createBundle(Gdx.files.internal("i18n/sokoban"), locale);
 		
 		m_gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/music.ogg"));
 		m_gameMusic.setVolume(0.4f);
@@ -28,6 +39,10 @@ public class SokobanGame extends Game {
 	public void dispose() {
 		m_gameMusic.dispose();
 		super.dispose();
+	}
+	
+	public I18NBundle getStringBundle() {
+		return m_stringBundle;
 	}
 	
 	public GameScore getScore(LevelPack levelPack, int levelIndex) {

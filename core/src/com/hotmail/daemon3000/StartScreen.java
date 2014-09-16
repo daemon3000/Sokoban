@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
@@ -28,14 +29,16 @@ public class StartScreen implements Screen {
 	}
 	
 	private void createWidgets() {
-		m_window = new Window("Main Menu", m_uiSkin, "default");
+		I18NBundle bundle = m_game.getStringBundle();
+		
+		m_window = new Window(bundle.get("main_menu_title"), m_uiSkin, "default");
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(250);
 		m_window.setHeight(300);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
-		Button playButton = new TextButton("Play", m_uiSkin, "default");
+		Button playButton = new TextButton(bundle.get("play_button"), m_uiSkin, "default");
 		m_window.addActor(playButton);
 		playButton.setWidth(220.0f);
 		playButton.setPosition(m_window.getWidth() / 2 - playButton.getWidth() / 2, m_window.getHeight() / 2 + playButton.getHeight() + 5.0f);
@@ -53,7 +56,7 @@ public class StartScreen implements Screen {
 		    }
 		});
 		
-		Button helpButton = new TextButton("Help", m_uiSkin, "default");
+		Button helpButton = new TextButton(bundle.get("help_button"), m_uiSkin, "default");
 		m_window.addActor(helpButton);
 		helpButton.setWidth(220.0f);
 		helpButton.setPosition(m_window.getWidth() / 2 - helpButton.getWidth() / 2, playButton.getY() - helpButton.getHeight() - 10.0f);
@@ -71,7 +74,7 @@ public class StartScreen implements Screen {
 		    }
 		});
 		
-		Button creditsButton = new TextButton("Credits", m_uiSkin, "default");
+		Button creditsButton = new TextButton(bundle.get("credits_button"), m_uiSkin, "default");
 		m_window.addActor(creditsButton);
 		creditsButton.setWidth(220.0f);
 		creditsButton.setPosition(m_window.getWidth() / 2 - creditsButton.getWidth() / 2, helpButton.getY() - creditsButton.getHeight() - 10.0f);
@@ -89,7 +92,7 @@ public class StartScreen implements Screen {
 		    }
 		});
 		
-		Button exitButton = new TextButton("Exit", m_uiSkin, "default");
+		Button exitButton = new TextButton(bundle.get("exit_button"), m_uiSkin, "default");
 		m_window.addActor(exitButton);
 		exitButton.setWidth(220.0f);
 		exitButton.setPosition(m_window.getWidth() / 2 - exitButton.getWidth() / 2, creditsButton.getY() - exitButton.getHeight() - 10.0f);

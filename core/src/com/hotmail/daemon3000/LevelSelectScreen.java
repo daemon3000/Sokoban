@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.badlogic.gdx.utils.XmlReader;
@@ -63,7 +64,9 @@ public class LevelSelectScreen implements Screen {
 	}
 	
 	private void createWidgets() {
-		m_window = new Window("Select Level Pack", m_uiSkin, "default");
+		I18NBundle bundle = m_game.getStringBundle();
+		
+		m_window = new Window(bundle.get("select_level_title"), m_uiSkin, "default");
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(300);
@@ -74,19 +77,19 @@ public class LevelSelectScreen implements Screen {
 		int packSize = m_levelPacks.size > 0 ? m_levelPacks.get(0).levelCount : 0;
 		String packAuthor = m_levelPacks.size > 0 ? m_levelPacks.get(0).author : "Unknown";
 		
-		m_levelPackName = new Label("Name: " + packName, m_uiSkin, "default");
+		m_levelPackName = new Label(bundle.format("level_pack_name", packName), m_uiSkin, "default");
 		m_window.addActor(m_levelPackName);
 		m_levelPackName.setPosition(15.0f, m_window.getHeight() - 70.0f);
 		
-		m_levelPackSize = new Label("Levels: " + packSize, m_uiSkin, "default");
+		m_levelPackSize = new Label(bundle.format("level_pack_size", packSize), m_uiSkin, "default");
 		m_window.addActor(m_levelPackSize);
 		m_levelPackSize.setPosition(15.0f, m_levelPackName.getY() - 25.0f);
 		
-		m_levelPackAuthor = new Label("Author: " + packAuthor, m_uiSkin, "default");
+		m_levelPackAuthor = new Label(bundle.format("level_pack_author", packAuthor), m_uiSkin, "default");
 		m_window.addActor(m_levelPackAuthor);
 		m_levelPackAuthor.setPosition(15.0f, m_levelPackSize.getY() - 25.0f);
 		
-		Label startAtLabel = new Label("Start At: ", m_uiSkin, "default");
+		Label startAtLabel = new Label(bundle.get("level_pack_start_at"), m_uiSkin, "default");
 		m_window.addActor(startAtLabel);
 		startAtLabel.setWidth(90);
 		startAtLabel.setPosition(15.0f, m_levelPackAuthor.getY() - 45.0f);
@@ -98,7 +101,7 @@ public class LevelSelectScreen implements Screen {
 		m_startLevel.setPosition(110.0f, m_levelPackAuthor.getY() - 60.0f);
 		
 		
-		Button cancelButton = new TextButton("Cancel", m_uiSkin, "default");
+		Button cancelButton = new TextButton(bundle.get("cancel_button"), m_uiSkin, "default");
 		m_window.addActor(cancelButton);
 		cancelButton.setWidth(m_window.getWidth() - 20.0f);
 		cancelButton.setPosition(10.0f, 10.0f);
@@ -116,7 +119,7 @@ public class LevelSelectScreen implements Screen {
 		    }
 		});
 		
-		Button startGameButton = new TextButton("Play", m_uiSkin, "default");
+		Button startGameButton = new TextButton(bundle.get("play_button"), m_uiSkin, "default");
 		m_window.addActor(startGameButton);
 		startGameButton.setWidth(160.0f);
 		startGameButton.setPosition(70.0f, cancelButton.getX() + startGameButton.getHeight() + 10.0f);
@@ -164,19 +167,22 @@ public class LevelSelectScreen implements Screen {
 	private void cycleLevelPacksLeft() {
 		if(m_currentLevelPack > 0) {
 			m_currentLevelPack--;
-			m_levelPackName.setText("Name: " + m_levelPacks.get(m_currentLevelPack).name);
-			m_levelPackSize.setText("Levels: " + m_levelPacks.get(m_currentLevelPack).levelCount);
-			m_levelPackAuthor.setText("Author: " + m_levelPacks.get(m_currentLevelPack).author);
+			resetPackInfo();
 		}
 	}
 	
 	private void cycleLevelPacksRight() {
 		if(m_currentLevelPack < m_levelPacks.size - 1) {
 			m_currentLevelPack++;
-			m_levelPackName.setText("Name: " + m_levelPacks.get(m_currentLevelPack).name);
-			m_levelPackSize.setText("Levels: " + m_levelPacks.get(m_currentLevelPack).levelCount);
-			m_levelPackAuthor.setText("Author: " + m_levelPacks.get(m_currentLevelPack).author);
+			resetPackInfo();
 		}
+	}
+	
+	private void resetPackInfo() {
+		I18NBundle bundle = m_game.getStringBundle();
+		m_levelPackName.setText(bundle.format("level_pack_name", m_levelPacks.get(m_currentLevelPack).name));
+		m_levelPackSize.setText(bundle.format("level_pack_size", m_levelPacks.get(m_currentLevelPack).levelCount));
+		m_levelPackAuthor.setText(bundle.format("level_pack_author", m_levelPacks.get(m_currentLevelPack).author));
 	}
 	
 	private int parseStartLevel() {

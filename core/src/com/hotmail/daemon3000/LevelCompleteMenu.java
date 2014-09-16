@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
@@ -18,12 +19,14 @@ public class LevelCompleteMenu {
 	private Stage m_stage;
 	private Window m_window;
 	private Sound m_click;
+	private I18NBundle m_stringBundle;
 	private boolean m_isOpen = false;
 	
-	public LevelCompleteMenu(Skin uiSkin, Sound clickSound) {
+	public LevelCompleteMenu(Skin uiSkin, Sound clickSound, I18NBundle stringBundle) {
 		m_uiSkin = uiSkin;
 		m_stage = new Stage();
 		m_click = clickSound;
+		m_stringBundle = stringBundle;
 		m_continueGameListeners = new Array<ActionListener>();
 		m_quitGameListeners = new Array<ActionListener>();
 		
@@ -31,14 +34,14 @@ public class LevelCompleteMenu {
 	}
 	
 	private void createWidgets() {
-		m_window = new Window("Level Complete!", m_uiSkin, "default");
+		m_window = new Window(m_stringBundle.get("level_complete"), m_uiSkin, "default");
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(250);
 		m_window.setHeight(200);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
-		Button continueButton = new TextButton("Continue", m_uiSkin, "default");
+		Button continueButton = new TextButton(m_stringBundle.get("continue_button"), m_uiSkin, "default");
 		m_window.addActor(continueButton);
 		continueButton.setWidth(220);
 		continueButton.setPosition(m_window.getWidth() / 2 - continueButton.getWidth() / 2, m_window.getHeight() / 2 - 5.0f);
@@ -52,7 +55,7 @@ public class LevelCompleteMenu {
 		    }
 		});
 		
-		Button quitButton = new TextButton("Quit", m_uiSkin, "default");
+		Button quitButton = new TextButton(m_stringBundle.get("quit_button"), m_uiSkin, "default");
 		m_window.addActor(quitButton);
 		quitButton.setWidth(220);
 		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, m_window.getHeight() / 2 - quitButton.getHeight() - 15.0f);
@@ -101,8 +104,13 @@ public class LevelCompleteMenu {
 		}, 0.2f);
 	}
 	
-	public void setWindowTitle(String title) {
-		m_window.setTitle(title);
+	public void setNewRecord(boolean record) {
+		if(record) {
+			m_window.setTitle(m_stringBundle.get("new_level_record"));
+		}
+		else {
+			m_window.setTitle(m_stringBundle.get("level_complete"));
+		}
 	}
 	
 	public void addContinueGameListener(ActionListener listener) {
@@ -128,6 +136,7 @@ public class LevelCompleteMenu {
 	}
 	
 	public void dispose() {
+		m_stringBundle = null;
 		m_stage.dispose();
 	}
 }

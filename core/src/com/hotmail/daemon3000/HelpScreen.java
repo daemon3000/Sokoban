@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
@@ -28,22 +29,24 @@ public class HelpScreen implements Screen {
 	}
 	
 	private void createWidgets() {
-		m_window = new Window("How To Play", m_uiSkin, "default");
+		I18NBundle bundle = m_game.getStringBundle();
+		
+		m_window = new Window(bundle.get("help_menu_title"), m_uiSkin, "default");
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(260);
 		m_window.setHeight(260);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
-		Label moveLabel = new Label("Move: Up, Down, Left, Right", m_uiSkin, "default");
+		Label moveLabel = new Label(bundle.get("move_help"), m_uiSkin, "default");
 		m_window.addActor(moveLabel);
 		moveLabel.setPosition(15.0f, m_window.getHeight() - 80.0f);
 		
-		Label undoLabel = new Label("Undo: Z", m_uiSkin, "default");
+		Label undoLabel = new Label(bundle.get("undo_help"), m_uiSkin, "default");
 		m_window.addActor(undoLabel);
 		undoLabel.setPosition(15.0f, moveLabel.getY() - 25.0f);
 		
-		Button backButton = new TextButton("Back", m_uiSkin, "default");
+		Button backButton = new TextButton(bundle.get("back_button"), m_uiSkin, "default");
 		m_window.addActor(backButton);
 		backButton.setWidth(220.0f);
 		backButton.setPosition(m_window.getWidth() / 2 - backButton.getWidth() / 2, 10.0f);

@@ -40,9 +40,9 @@ public class GameScreen implements Screen {
 		m_camera.zoom = 2.0f;
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
-		m_statusPanel = new StatusPanel(m_uiSkin);
-		m_pauseMenu = new PauseMenu(m_uiSkin, m_click);
-		m_levelCompleteMenu = new LevelCompleteMenu(m_uiSkin, m_click);
+		m_statusPanel = new StatusPanel(m_uiSkin, m_game.getStringBundle());
+		m_pauseMenu = new PauseMenu(m_uiSkin, m_click, m_game.getStringBundle());
+		m_levelCompleteMenu = new LevelCompleteMenu(m_uiSkin, m_click, m_game.getStringBundle());
 		m_levelPack = new LevelPack(levelPackID, levelPackFile, m_spriteBatch, m_camera, m_tileRegions);
 		
 		m_pauseMenu.addResetLevelListener(new ActionListener() {
@@ -160,10 +160,10 @@ public class GameScreen implements Screen {
 		
 		if((moveCount <= m_bestMoves || m_bestMoves <= 0) && (m_elapsedTime < m_bestTime || m_bestTime <= 0.0f)) {
 			m_game.setScore(m_levelPack, m_currentLevelIndex, moveCount, m_elapsedTime);
-			m_levelCompleteMenu.setWindowTitle("New Record!");
+			m_levelCompleteMenu.setNewRecord(true);
 		}
 		else {
-			m_levelCompleteMenu.setWindowTitle("Level Complete!");
+			m_levelCompleteMenu.setNewRecord(false);
 		}	
 		m_levelCompleteMenu.open();
 	}
