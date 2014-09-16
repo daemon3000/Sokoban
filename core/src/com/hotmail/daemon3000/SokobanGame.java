@@ -46,9 +46,9 @@ public class SokobanGame extends Game {
 	}
 	
 	public GameScore getScore(LevelPack levelPack, int levelIndex) {
-		HashMap<Integer, GameScore> scores = m_highScores.getOrDefault(levelPack.getID(), null);
+		HashMap<Integer, GameScore> scores = m_highScores.get(levelPack.getID());
 		if(scores != null) {
-			return scores.getOrDefault(levelIndex, null);
+			return scores.get(levelIndex);
 		}
 		else {
 			return null;
@@ -56,9 +56,9 @@ public class SokobanGame extends Game {
 	}
 	
 	public void setScore(LevelPack levelPack, int levelIndex, int moves, float time) {
-		HashMap<Integer, GameScore> scores = m_highScores.getOrDefault(levelPack.getID(), null);
+		HashMap<Integer, GameScore> scores = m_highScores.get(levelPack.getID());
 		if(scores != null) {
-			GameScore score = scores.getOrDefault(levelIndex, null);
+			GameScore score = scores.get(levelIndex);
 			if(score != null) {
 				score.bestMoves = moves;
 				score.bestTime = time;
