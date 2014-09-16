@@ -7,11 +7,11 @@ public final class Tiles {
 	public static final byte TILE_NULL = -2;
 	public static final byte TILE_EMPTY = -1;
 	public static final byte TILE_WALL = 0;
-	public static final byte TILE_PLAYER = 1;
-	public static final byte TILE_CRATE = 2;
+	public static final byte TILE_CRATE = 1;
+	public static final byte TILE_CRATE_ON_GOAL = 2;
 	public static final byte TILE_GOAL = 3;
 	public static final byte TILE_PLAYER_ON_GOAL = 4;
-	public static final byte TILE_CRATE_ON_GOAL = 5;
+	public static final byte TILE_PLAYER = 5;
 	
 	private Tiles() {
 	}

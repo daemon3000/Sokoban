@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.*;
 
 public class LevelPack {
@@ -14,22 +15,22 @@ public class LevelPack {
 	
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
-	private Array<Texture> m_tileTextures;
+	private TextureRegion[] m_tileRegions;
 	private Array<LevelData> m_levels;
 	private int m_maxLevelSize;
 	private String m_id;
 	private Level m_lastLoadedLevel = null;
 	private boolean m_isDisposed = false;
 	
-	public LevelPack(String id, String file, SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures) {
-		this(id, Gdx.files.internal(file), batch, camera, tileTextures);
+	public LevelPack(String id, String file, SpriteBatch batch, OrthographicCamera camera, TextureRegion[] tileRegions) {
+		this(id, Gdx.files.internal(file), batch, camera, tileRegions);
 	}
 	
-	public LevelPack(String id, FileHandle fileHandle, SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures) {
+	public LevelPack(String id, FileHandle fileHandle, SpriteBatch batch, OrthographicCamera camera, TextureRegion[] tileRegions) {
 		m_id = id;
 		m_spriteBatch = batch;
 		m_camera = camera;
-		m_tileTextures = tileTextures;
+		m_tileRegions = tileRegions;
 
 		loadLevels(fileHandle);
 	}
@@ -154,7 +155,7 @@ public class LevelPack {
 				m_lastLoadedLevel.initialize(m_levels.get(index));
 			}
 			else {
-				m_lastLoadedLevel = new Level(m_spriteBatch, m_camera, m_tileTextures, m_maxLevelSize, m_levels.get(index));
+				m_lastLoadedLevel = new Level(m_spriteBatch, m_camera, m_tileRegions, m_maxLevelSize, m_levels.get(index));
 			}
 			
 			return m_lastLoadedLevel;
@@ -172,7 +173,7 @@ public class LevelPack {
 			m_lastLoadedLevel.dispose();
 			m_spriteBatch = null;
 			m_camera = null;
-			m_tileTextures = null;
+			m_tileRegions = null;
 			
 			m_levels.clear();
 			m_levels = null;

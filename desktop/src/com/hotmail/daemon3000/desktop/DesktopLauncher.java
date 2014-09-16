@@ -17,7 +17,7 @@ public class DesktopLauncher {
 	private static LwjglApplicationConfiguration getConfig() {
 		DesktopSettings settings = null;
 		try {
-			FileInputStream stream = new FileInputStream("settings.json");
+			FileInputStream stream = new FileInputStream("config.json");
 			Json json = new Json();
 			settings = json.fromJson(DesktopSettings.class, stream);
 			stream.close();

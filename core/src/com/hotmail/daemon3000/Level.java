@@ -1,16 +1,20 @@
 package com.hotmail.daemon3000;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.*;
 
 public class Level {
 	private static final int MAX_UNDO_STEPS = 32;
 	
+	private enum PlayerDirection {
+		Front, Back, Left, Right
+	}
+	
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
-	private Array<Texture> m_tileTextures;
+	private TextureRegion[] m_tileRegions;
 	private Pool<UndoStep> m_undoPool;
 	private Array<UndoStep> m_undoStack;
 	private Array<ActionListener> m_levelCompleteListeners;
@@ -24,11 +28,12 @@ public class Level {
 	private int m_currentActiveGoals = 0;
 	private boolean m_isDisposed = false;
 	private boolean m_isInitialized = false;
+	private PlayerDirection m_playerDir;
 	
-	public Level(SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures, int tileCapacity, LevelData levelData) {
+	public Level(SpriteBatch batch, OrthographicCamera camera, TextureRegion[] tileRegions, int tileCapacity) {
 		m_spriteBatch = batch;
 		m_camera = camera;
-		m_tileTextures = tileTextures;
+		m_tileRegions = tileRegions;
 		m_undoStack = new Array<UndoStep>(MAX_UNDO_STEPS + 1);
 		m_undoPool = new Pool<UndoStep>(MAX_UNDO_STEPS + 1) {
 			@Override 
@@ -38,16 +43,11 @@ public class Level {
 		};
 		m_levelCompleteListeners = new Array<ActionListener>();
 		m_tiles = new byte[tileCapacity];
-		
-		initialize(levelData);
 	}
 	
-	public Level(SpriteBatch batch, OrthographicCamera camera, Array<Texture> tileTextures, int tileCapacity) {
-		m_spriteBatch = batch;
-		m_camera = camera;
-		m_tileTextures = tileTextures;
-		m_undoStack = new Array<UndoStep>(MAX_UNDO_STEPS + 1);
-		m_tiles = new byte[tileCapacity];
+	public Level(SpriteBatch batch, OrthographicCamera camera, TextureRegion[] tileRegions, int tileCapacity, LevelData levelData) {
+		this(batch, camera, tileRegions, tileCapacity);
+		initialize(levelData);
 	}
 	
 	public void initialize(LevelData levelData) {
@@ -67,6 +67,7 @@ public class Level {
 		m_currentActiveGoals = levelData.activeGoalCountAtStart;
 		m_camera.position.set(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, 0);
 		m_moveCount = 0;
+		m_playerDir = PlayerDirection.Front;
 		m_levelCompleteListeners.clear();
 		m_isInitialized = true;
 		
@@ -90,7 +91,25 @@ public class Level {
 			
 			texturePosY = i / m_width;
 			texturePosX = i - (texturePosY * m_width);
-			m_spriteBatch.draw(m_tileTextures.get(m_tiles[i]), texturePosX * Tiles.TILE_WIDTH, (m_height - (texturePosY + 1)) * Tiles.TILE_HEIGHT);
+			if(m_tiles[i] == Tiles.TILE_PLAYER || m_tiles[i] == Tiles.TILE_PLAYER_ON_GOAL) {
+				switch(m_playerDir) {
+				case Front:
+					m_spriteBatch.draw(m_tileRegions[Tiles.TILE_PLAYER - 1], texturePosX * Tiles.TILE_WIDTH, (m_height - (texturePosY + 1)) * Tiles.TILE_HEIGHT);
+					break;
+				case Back:
+					m_spriteBatch.draw(m_tileRegions[Tiles.TILE_PLAYER], texturePosX * Tiles.TILE_WIDTH, (m_height - (texturePosY + 1)) * Tiles.TILE_HEIGHT);
+					break;
+				case Left:
+					m_spriteBatch.draw(m_tileRegions[Tiles.TILE_PLAYER + 1], texturePosX * Tiles.TILE_WIDTH, (m_height - (texturePosY + 1)) * Tiles.TILE_HEIGHT);
+					break;
+				case Right:
+					m_spriteBatch.draw(m_tileRegions[Tiles.TILE_PLAYER + 2], texturePosX * Tiles.TILE_WIDTH, (m_height - (texturePosY + 1)) * Tiles.TILE_HEIGHT);
+					break;
+				}
+			}
+			else {
+				m_spriteBatch.draw(m_tileRegions[m_tiles[i]], texturePosX * Tiles.TILE_WIDTH, (m_height - (texturePosY + 1)) * Tiles.TILE_HEIGHT);
+			}
 		}
 		m_spriteBatch.end();
 	}
@@ -126,6 +145,7 @@ public class Level {
 			setTileAt(m_playerPosX, m_playerPosY, Tiles.TILE_PLAYER);
 		else if(tile == Tiles.TILE_GOAL)
 			setTileAt(m_playerPosX, m_playerPosY, Tiles.TILE_PLAYER_ON_GOAL);
+		setPlayerDirection(dx, dy);
 		
 		registerUndoStep(dx, dy, movedCrate);
 	}
@@ -197,6 +217,7 @@ public class Level {
 			setTileAt(m_playerPosX, m_playerPosY, Tiles.TILE_PLAYER);
 		else if(tile == Tiles.TILE_GOAL)
 			setTileAt(m_playerPosX, m_playerPosY, Tiles.TILE_PLAYER_ON_GOAL);
+		setPlayerDirection(undoStep.deltaX, undoStep.deltaY);
 		
 		m_camera.position.set(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, 0);
 		
@@ -240,6 +261,24 @@ public class Level {
 	private void setTileAt(int x, int y, byte tile) {
 		if(x >= 0 && x < m_width && y >= 0 && y < m_height)
 			m_tiles[y * m_width + x] = tile;
+	}
+	
+	private void setPlayerDirection(int dx, int dy) {
+		if(dx == 1) {
+			m_playerDir = PlayerDirection.Right;
+		}
+		else if(dx == -1) {
+			m_playerDir = PlayerDirection.Left;
+		}
+		else if(dy == 1) {
+			m_playerDir = PlayerDirection.Front;
+		}
+		else if(dy == -1) {
+			m_playerDir = PlayerDirection.Back;
+		}
+		else {
+			m_playerDir = PlayerDirection.Front;
+		}
 	}
 	
 	private void clearUndoStack() {
@@ -286,7 +325,7 @@ public class Level {
 			m_undoPool.clear();
 			m_spriteBatch = null;
 			m_camera = null;
-			m_tileTextures = null;
+			m_tileRegions = null;
 			m_undoStack = null;
 			m_tiles = null;
 			m_isInitialized = false;

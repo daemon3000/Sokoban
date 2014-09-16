@@ -65,5 +65,5 @@ build/
 .DS_Store
 
 ## Profile
-desktop/Profile/
-desktop/settings.json
+desktop/profile/
+desktop/config.json

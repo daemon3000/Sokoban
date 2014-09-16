@@ -63,7 +63,7 @@ public class SokobanGame extends Game {
 	}
 	
 	public void saveScores() {
-		FileHandle file = Gdx.files.local("Profile/highscores.hsc");
+		FileHandle file = Gdx.files.local("profile/highscores.hsc");
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		try {
 			ObjectOutputStream objStream = new ObjectOutputStream(stream);
@@ -78,7 +78,7 @@ public class SokobanGame extends Game {
 	
 	@SuppressWarnings("unchecked")
 	private void loadScores() {
-		FileHandle file = Gdx.files.local("Profile/highscores.hsc");
+		FileHandle file = Gdx.files.local("profile/highscores.hsc");
 		if(file.exists()) {
 			try {
 				ObjectInputStream stream = new ObjectInputStream(file.read());

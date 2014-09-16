@@ -8,8 +8,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
@@ -17,7 +17,8 @@ public class GameScreen implements Screen {
 	private SokobanGame m_game;
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
-	private Array<Texture> m_tileTextures;
+	private Texture m_tileSheet;
+	private TextureRegion[] m_tileRegions;
 	private Skin m_uiSkin;
 	private Sound m_click;
 	private StatusPanel m_statusPanel;
@@ -42,7 +43,7 @@ public class GameScreen implements Screen {
 		m_statusPanel = new StatusPanel(m_uiSkin);
 		m_pauseMenu = new PauseMenu(m_uiSkin, m_click);
 		m_levelCompleteMenu = new LevelCompleteMenu(m_uiSkin, m_click);
-		m_levelPack = new LevelPack(levelPackID, levelPackFile, m_spriteBatch, m_camera, m_tileTextures);
+		m_levelPack = new LevelPack(levelPackID, levelPackFile, m_spriteBatch, m_camera, m_tileRegions);
 		
 		m_pauseMenu.addResetLevelListener(new ActionListener() {
 			public void handle() {
@@ -75,13 +76,11 @@ public class GameScreen implements Screen {
 	}
 	
 	private void loadTiles() {
-		m_tileTextures = new Array<Texture>();
-		m_tileTextures.add(new Texture(Gdx.files.internal("img/wall_brown.png")));
-		m_tileTextures.add(new Texture(Gdx.files.internal("img/player_front.png")));
-		m_tileTextures.add(new Texture(Gdx.files.internal("img/crate_off.png")));
-		m_tileTextures.add(new Texture(Gdx.files.internal("img/marker.png")));
-		m_tileTextures.add(new Texture(Gdx.files.internal("img/player_front.png")));
-		m_tileTextures.add(new Texture(Gdx.files.internal("img/crate_on.png")));
+		m_tileSheet = new Texture("img/tilesheet.png");
+		m_tileRegions = new TextureRegion[m_tileSheet.getWidth() / Tiles.TILE_WIDTH];
+		for(int i = 0; i < m_tileRegions.length; i++) {
+			m_tileRegions[i] = new TextureRegion(m_tileSheet, i * Tiles.TILE_WIDTH, 0, Tiles.TILE_WIDTH, Tiles.TILE_HEIGHT);
+		}
 	}
 	
 	@Override
@@ -114,11 +113,11 @@ public class GameScreen implements Screen {
 	private void handleInput() {
 		if(Gdx.input.isKeyJustPressed(Keys.UP) || Gdx.input.isKeyJustPressed(Keys.W))
 			movePlayer(0, -1);
-		if(Gdx.input.isKeyJustPressed(Keys.DOWN) || Gdx.input.isKeyJustPressed(Keys.S))
+		else if(Gdx.input.isKeyJustPressed(Keys.DOWN) || Gdx.input.isKeyJustPressed(Keys.S))
 			movePlayer(0, 1);
-		if(Gdx.input.isKeyJustPressed(Keys.LEFT) || Gdx.input.isKeyJustPressed(Keys.A))
+		else if(Gdx.input.isKeyJustPressed(Keys.LEFT) || Gdx.input.isKeyJustPressed(Keys.A))
 			movePlayer(-1, 0);
-		if(Gdx.input.isKeyJustPressed(Keys.RIGHT) || Gdx.input.isKeyJustPressed(Keys.D))
+		else if(Gdx.input.isKeyJustPressed(Keys.RIGHT) || Gdx.input.isKeyJustPressed(Keys.D))
 			movePlayer(1, 0);
 		if(Gdx.input.isKeyJustPressed(Keys.Z))
 			undoMovePlayer();
@@ -220,16 +219,13 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
 		m_currentLevel = null;
+		m_tileRegions = null;
 		m_statusPanel.dispose();
 		m_pauseMenu.dispose();
 		m_levelPack.dispose();
 		m_spriteBatch.dispose();
 		m_uiSkin.dispose();
 		m_click.dispose();
-		
-		for(Texture texture: m_tileTextures) {
-			texture.dispose();
-		}
-		m_tileTextures.clear();
+		m_tileSheet.dispose();
 	}
 }
