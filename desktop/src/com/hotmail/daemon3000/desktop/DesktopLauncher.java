@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.utils.Json;
@@ -20,6 +21,9 @@ public class DesktopLauncher {
 		config.fullscreen = settings.fullscreen;
 		config.useGL30 = settings.useGL30;
 		config.vSyncEnabled = settings.vSyncEnabled;
+		config.addIcon("icon_big.png", FileType.Internal);
+		config.addIcon("icon_medium.png", FileType.Internal);
+		config.addIcon("icon_small.png", FileType.Internal);
 		
 		new LwjglApplication(new SokobanGame(settings.language), config);
 	}
