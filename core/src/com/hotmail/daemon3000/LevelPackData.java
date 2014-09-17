@@ -11,15 +11,15 @@ public class LevelPackData {
 	public String author;
 	public int levelCount;
 	public int difficulty;
-	public boolean isAddon;
+	public boolean isInternal;
 	
-	public LevelPackData(String name, String id, String file, String author, int levelCount, int difficulty, boolean isAddon) {
+	public LevelPackData(String name, String id, String file, String author, int levelCount, int difficulty, boolean isInternal) {
 		this.name = name;
 		this.file = file;
 		this.id = id;
 		this.author = author;
 		this.levelCount = levelCount;
 		this.difficulty = difficulty;
-		this.isAddon = isAddon;
+		this.isInternal = isInternal;
 	}
 }

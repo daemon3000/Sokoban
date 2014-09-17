@@ -1,0 +1,106 @@
+[
+	{
+		name: "Microban I",
+		id: "microban_1",
+		file: "levels/microban_1.txt",
+		author: "David W. Skinner",
+		levelCount: 155,
+		difficulty: 0
+	},
+	{
+		name: "Microban II",
+		id: "microban_2",
+		file: "levels/microban_2.txt",
+		author: "David W. Skinner",
+		levelCount: 133,
+		difficulty: 0
+	},
+	{
+		name: "Microban III",
+		id: "microban_3",
+		file: "levels/microban_3.txt",
+		author: "David W. Skinner",
+		levelCount: 101,
+		difficulty: 0
+	},
+	{
+		name: "Sasquatch I",
+		id: "sasquatch_1",
+		file: "levels/sasquatch_1.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	},
+	{
+		name: "Sasquatch II",
+		id: "sasquatch_2",
+		file: "levels/sasquatch_2.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	},
+	{
+		name: "Sasquatch III",
+		id: "sasquatch_3",
+		file: "levels/sasquatch_3.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	},
+	{
+		name: "Sasquatch IV",
+		id: "sasquatch_4",
+		file: "levels/sasquatch_4.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	},
+	{
+		name: "Sasquatch V",
+		id: "sasquatch_5",
+		file: "levels/sasquatch_5.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	},
+	{
+		name: "Sasquatch VI",
+		id: "sasquatch_6",
+		file: "levels/sasquatch_6.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	},
+	{
+		name: "Sasquatch VII",
+		id: "sasquatch_7",
+		file: "levels/sasquatch_7.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	},
+	{
+		name: "Sasquatch VIII",
+		id: "sasquatch_8",
+		file: "levels/sasquatch_8.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	},
+	{
+		name: "Sasquatch IX",
+		id: "sasquatch_9",
+		file: "levels/sasquatch_9.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	},
+	{
+		name: "Sasquatch X",
+		id: "sasquatch_10",
+		file: "levels/sasquatch_10.txt",
+		author: "David W. Skinner",
+		levelCount: 50,
+		difficulty: 1
+	}
+]

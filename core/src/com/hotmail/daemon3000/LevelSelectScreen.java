@@ -1,7 +1,5 @@
 package com.hotmail.daemon3000;
 
-import java.io.IOException;
-
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
@@ -37,60 +35,32 @@ public class LevelSelectScreen implements Screen {
 		m_game = game;
 		m_stringBundle = m_game.getStringBundle();
 		
-		loadInternalLevelPackList();
-		loadAddonLevelPackList();
+		loadLevelPackList(Gdx.files.internal("levels/index.json"), true);
+		loadLevelPackList(Gdx.files.internal("addons/levels/index.json"), false);
 		createWidgets();
 		Gdx.input.setInputProcessor(m_stage);
 	}
 	
-	private void loadInternalLevelPackList() {
-		try {
-			XmlReader reader = new XmlReader();
-			XmlReader.Element root = reader.parse(Gdx.files.internal("levels/index.xml"));
-			int childCount = root.getChildCount();
-			
-			for(int i = 0; i < childCount; i++) {
-				XmlReader.Element elem = root.getChild(i);
-				m_levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("id"), 
-								 				   elem.getAttribute("file"), elem.getAttribute("author"), 
-								 				   elem.getIntAttribute("levelCount"), elem.getIntAttribute("difficulty"), false));
-			}
-		}
-		catch(GdxRuntimeException re) {
-			m_levelPacks.clear();
-		}
-		catch(IOException ioe) {
-			m_levelPacks.clear();
-		}
-	}
-	
-	private void loadAddonLevelPackList() {
-		FileHandle fileHandle = Gdx.files.local("addons/levels/index.xml");
+	private void loadLevelPackList(FileHandle fileHandle, boolean internal) {
 		if(!fileHandle.exists())
 			return;
 		
-		Array<LevelPackData> levelPacks = new Array<LevelPackData>();
-		try {
-			XmlReader reader = new XmlReader();
-			XmlReader.Element root = reader.parse(fileHandle);
-			int childCount = root.getChildCount();
-			
-			for(int i = 0; i < childCount; i++) {
-				XmlReader.Element elem = root.getChild(i);
-				levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("id"), 
-								 				 elem.getAttribute("file"), elem.getAttribute("author"), 
-								 				 elem.getIntAttribute("levelCount"), elem.getIntAttribute("difficulty"), true));
+		JsonReader reader = new JsonReader();
+		JsonValue root = reader.parse(fileHandle);
+		String name = null, id = null, file = null, author = null;
+		int levelCount = 0, difficulty = -1;
+				
+		for(JsonValue entry = root.child; entry != null; entry = entry.next) {
+			name = entry.getString("name", null);
+			id = entry.getString("id", null);
+			file = entry.getString("file", null);
+			author = entry.getString("author", m_stringBundle.get("unknown"));
+			levelCount = entry.getInt("levelCount", 0);
+			difficulty = entry.getInt("difficulty", -1);
+			if(name != null && id != null && file != null && levelCount > 0) {
+				m_levelPacks.add(new LevelPackData(name, id, file, author, levelCount, difficulty, internal));
 			}
 		}
-		catch(GdxRuntimeException re) {
-			levelPacks.clear();
-		}
-		catch(IOException ioe) {
-			levelPacks.clear();
-		}
-		
-		if(levelPacks.size > 0)
-			m_levelPacks.addAll(levelPacks);
 	}
 	
 	private void createWidgets() {
@@ -165,8 +135,9 @@ public class LevelSelectScreen implements Screen {
 						@Override
 						public void run() {
 							LevelPackData levelPackData = m_levelPacks.get(m_currentLevelPack);
-							FileHandle fileHandle = levelPackData.isAddon ? Gdx.files.local(levelPackData.file) :
-																			Gdx.files.internal(levelPackData.file);
+							FileHandle fileHandle = levelPackData.isInternal ? Gdx.files.internal(levelPackData.file) :
+																				Gdx.files.local(levelPackData.file);
+																			
 							m_game.setScreen(new GameScreen(m_game, levelPackData.id, fileHandle, parseStartLevel()));
 							dispose();
 						}
