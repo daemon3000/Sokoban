@@ -11,12 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.I18NBundle;
-import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.Timer.Task;
-import com.badlogic.gdx.utils.XmlReader;
 
 public class LevelSelectScreen implements Screen {
 	private Skin m_uiSkin;
@@ -25,10 +21,12 @@ public class LevelSelectScreen implements Screen {
 	private Label m_levelPackName;
 	private Label m_levelPackSize;
 	private Label m_levelPackAuthor;
+	private Label m_levelPackDifficulty;
 	private TextField m_startLevel;
 	private Sound m_click;
 	private Array<LevelPackData> m_levelPacks;
 	private SokobanGame m_game;
+	I18NBundle m_stringBundle;
 	private int m_currentLevelPack = 0;
 	
 	public LevelSelectScreen(SokobanGame game) {
@@ -37,6 +35,7 @@ public class LevelSelectScreen implements Screen {
 		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
 		m_levelPacks = new Array<LevelPackData>();
 		m_game = game;
+		m_stringBundle = m_game.getStringBundle();
 		
 		loadInternalLevelPackList();
 		loadAddonLevelPackList();
@@ -53,8 +52,8 @@ public class LevelSelectScreen implements Screen {
 			for(int i = 0; i < childCount; i++) {
 				XmlReader.Element elem = root.getChild(i);
 				m_levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("id"), 
-								 				  elem.getAttribute("file"), elem.getIntAttribute("levelCount"),
-								 				  elem.getAttribute("author"), false));
+								 				   elem.getAttribute("file"), elem.getAttribute("author"), 
+								 				   elem.getIntAttribute("levelCount"), elem.getIntAttribute("difficulty"), false));
 			}
 		}
 		catch(GdxRuntimeException re) {
@@ -79,8 +78,8 @@ public class LevelSelectScreen implements Screen {
 			for(int i = 0; i < childCount; i++) {
 				XmlReader.Element elem = root.getChild(i);
 				levelPacks.add(new LevelPackData(elem.getAttribute("name"), elem.getAttribute("id"), 
-								 				  elem.getAttribute("file"), elem.getIntAttribute("levelCount"),
-								 				  elem.getAttribute("author"), true));
+								 				 elem.getAttribute("file"), elem.getAttribute("author"), 
+								 				 elem.getIntAttribute("levelCount"), elem.getIntAttribute("difficulty"), true));
 			}
 		}
 		catch(GdxRuntimeException re) {
@@ -95,44 +94,47 @@ public class LevelSelectScreen implements Screen {
 	}
 	
 	private void createWidgets() {
-		I18NBundle bundle = m_game.getStringBundle();
-		
-		m_window = new Window(bundle.get("select_level_title"), m_uiSkin, "default");
+		m_window = new Window(m_stringBundle.get("select_level_title"), m_uiSkin, "default");
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(300);
-		m_window.setHeight(320);
+		m_window.setHeight(350);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
-		String packName = m_levelPacks.size > 0 ? m_levelPacks.get(0).name : "Unknown";
+		String packName = m_levelPacks.size > 0 ? m_levelPacks.get(0).name : m_stringBundle.get("unknown");
 		int packSize = m_levelPacks.size > 0 ? m_levelPacks.get(0).levelCount : 0;
-		String packAuthor = m_levelPacks.size > 0 ? m_levelPacks.get(0).author : "Unknown";
+		String packAuthor = m_levelPacks.size > 0 ? m_levelPacks.get(0).author : m_stringBundle.get("unknown");
+		String packDifficulty = m_levelPacks.size > 0 ? convertLevelPackDifficulty(m_levelPacks.get(0).difficulty) : m_stringBundle.get("unknown");
 		
-		m_levelPackName = new Label(bundle.format("level_pack_name", packName), m_uiSkin, "default");
+		m_levelPackName = new Label(m_stringBundle.format("level_pack_name", packName), m_uiSkin, "default");
 		m_window.addActor(m_levelPackName);
 		m_levelPackName.setPosition(15.0f, m_window.getHeight() - 70.0f);
 		
-		m_levelPackSize = new Label(bundle.format("level_pack_size", packSize), m_uiSkin, "default");
+		m_levelPackSize = new Label(m_stringBundle.format("level_pack_size", packSize), m_uiSkin, "default");
 		m_window.addActor(m_levelPackSize);
 		m_levelPackSize.setPosition(15.0f, m_levelPackName.getY() - 25.0f);
 		
-		m_levelPackAuthor = new Label(bundle.format("level_pack_author", packAuthor), m_uiSkin, "default");
+		m_levelPackAuthor = new Label(m_stringBundle.format("level_pack_author", packAuthor), m_uiSkin, "default");
 		m_window.addActor(m_levelPackAuthor);
 		m_levelPackAuthor.setPosition(15.0f, m_levelPackSize.getY() - 25.0f);
 		
-		Label startAtLabel = new Label(bundle.get("level_pack_start_at"), m_uiSkin, "default");
+		m_levelPackDifficulty = new Label(m_stringBundle.format("level_pack_difficulty", packDifficulty), m_uiSkin, "default");
+		m_window.addActor(m_levelPackDifficulty);
+		m_levelPackDifficulty.setPosition(15.0f, m_levelPackAuthor.getY() - 25.0f);
+		
+		Label startAtLabel = new Label(m_stringBundle.get("level_pack_start_at"), m_uiSkin, "default");
 		m_window.addActor(startAtLabel);
 		startAtLabel.setWidth(90);
-		startAtLabel.setPosition(15.0f, m_levelPackAuthor.getY() - 45.0f);
+		startAtLabel.setPosition(15.0f,m_levelPackDifficulty.getY() - 45.0f);
 		
 		m_startLevel = new TextField("1", m_uiSkin, "default");
 		m_window.addActor(m_startLevel);
 		m_startLevel.setWidth(175);
 		m_startLevel.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
-		m_startLevel.setPosition(110.0f, m_levelPackAuthor.getY() - 60.0f);
+		m_startLevel.setPosition(110.0f, m_levelPackDifficulty.getY() - 60.0f);
 		
 		
-		Button cancelButton = new TextButton(bundle.get("cancel_button"), m_uiSkin, "default");
+		Button cancelButton = new TextButton(m_stringBundle.get("cancel_button"), m_uiSkin, "default");
 		m_window.addActor(cancelButton);
 		cancelButton.setWidth(m_window.getWidth() - 20.0f);
 		cancelButton.setPosition(10.0f, 10.0f);
@@ -150,7 +152,7 @@ public class LevelSelectScreen implements Screen {
 		    }
 		});
 		
-		Button startGameButton = new TextButton(bundle.get("play_button"), m_uiSkin, "default");
+		Button startGameButton = new TextButton(m_stringBundle.get("play_button"), m_uiSkin, "default");
 		m_window.addActor(startGameButton);
 		startGameButton.setWidth(160.0f);
 		startGameButton.setPosition(70.0f, cancelButton.getX() + startGameButton.getHeight() + 10.0f);
@@ -216,6 +218,7 @@ public class LevelSelectScreen implements Screen {
 		m_levelPackName.setText(bundle.format("level_pack_name", m_levelPacks.get(m_currentLevelPack).name));
 		m_levelPackSize.setText(bundle.format("level_pack_size", m_levelPacks.get(m_currentLevelPack).levelCount));
 		m_levelPackAuthor.setText(bundle.format("level_pack_author", m_levelPacks.get(m_currentLevelPack).author));
+		m_levelPackDifficulty.setText(bundle.format("level_pack_difficulty", convertLevelPackDifficulty(m_levelPacks.get(m_currentLevelPack).difficulty)));
 	}
 	
 	private int parseStartLevel() {
@@ -226,6 +229,17 @@ public class LevelSelectScreen implements Screen {
 		catch(NumberFormatException ex) {
 			return 0;
 		}
+	}
+	
+	private String convertLevelPackDifficulty(int difficulty) {
+		if(difficulty == LevelPackData.DIFFICULTY_EASY)
+			return m_stringBundle.get("difficulty_easy");
+		else if(difficulty == LevelPackData.DIFFICULTY_NORMAL)
+			return m_stringBundle.get("difficulty_normal");
+		else if(difficulty == LevelPackData.DIFFICULTY_HARD)
+			return m_stringBundle.get("difficulty_hard");
+		else
+			return m_stringBundle.get("unknown");
 	}
 	
 	private void slideIn() {

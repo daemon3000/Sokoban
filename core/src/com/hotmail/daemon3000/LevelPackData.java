@@ -1,19 +1,25 @@
 package com.hotmail.daemon3000;
 
 public class LevelPackData {
+	public static final int DIFFICULTY_EASY = 0;
+	public static final int DIFFICULTY_NORMAL = 1;
+	public static final int DIFFICULTY_HARD = 2;
+	
 	public String name;
 	public String id;
 	public String file;
 	public String author;
 	public int levelCount;
+	public int difficulty;
 	public boolean isAddon;
 	
-	public LevelPackData(String name, String id, String file, int levelCount, String author, boolean isAddon) {
+	public LevelPackData(String name, String id, String file, String author, int levelCount, int difficulty, boolean isAddon) {
 		this.name = name;
 		this.file = file;
 		this.id = id;
 		this.author = author;
 		this.levelCount = levelCount;
+		this.difficulty = difficulty;
 		this.isAddon = isAddon;
 	}
 }
