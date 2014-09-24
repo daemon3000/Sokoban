@@ -2,6 +2,20 @@ uiskin.png
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
+arrow
+  rotate: false
+  xy: 160, 53
+  size: 19, 24
+  orig: 16, 24
+  offset: 0, 0
+  index: -1
+arrow_small
+  rotate: false
+  xy: 192, 53
+  size: 12, 15
+  orig: 12, 15
+  offset: 0, 0
+  index: -1
 arrow_down
   rotate: false
   xy: 63, 237
@@ -46,6 +60,14 @@ button_up_alt
   orig: 49, 45
   offset: 0, 0
   index: -1
+button_small_up_alt
+  rotate: false
+  xy: 109, 53
+  size: 30, 28
+  split: 5, 5, 5, 5
+  orig: 30, 28
+  offset: 0, 0
+  index: -1
 button_down
   rotate: false
   xy: 110, 2
@@ -60,6 +82,14 @@ button_down_alt
   size: 49, 49
   split: 10, 10, 10, 10
   orig: 49, 49
+  offset: 0, 0
+  index: -1
+button_small_down_alt
+  rotate: false
+  xy: 59, 53
+  size: 30, 30
+  split: 5, 5, 5, 8
+  orig: 30, 30
   offset: 0, 0
   index: -1
 checkbox_cross
@@ -191,17 +221,17 @@ slider_vertical
 text_field
   rotate: false
   xy: 161, 2
-  size: 49, 49
-  split: 10, 10, 10, 10
-  orig: 49, 49
+  size: 30, 28
+  split: 8, 5, 5, 5
+  orig: 30, 28
   offset: 0, 0
   index: -1
 text_field_alt
   rotate: false
   xy: 2, 104
-  size: 49, 49
-  split: 10, 10, 10, 10
-  orig: 49, 49
+  size: 30, 28
+  split: 8, 5, 5, 5
+  orig: 30, 28
   offset: 0, 0
   index: -1
 white

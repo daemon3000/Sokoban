@@ -36,7 +36,7 @@ public class LevelSelectScreen implements Screen {
 		m_stringBundle = m_game.getStringBundle();
 		
 		loadLevelPackList(Gdx.files.internal("levels/index.json"), true);
-		loadLevelPackList(Gdx.files.internal("addons/levels/index.json"), false);
+		loadLevelPackList(Gdx.files.local("addons/levels/index.json"), false);
 		createWidgets();
 		Gdx.input.setInputProcessor(m_stage);
 	}
@@ -68,7 +68,7 @@ public class LevelSelectScreen implements Screen {
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(300);
-		m_window.setHeight(350);
+		m_window.setHeight(325);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
 		String packName = m_levelPacks.size > 0 ? m_levelPacks.get(0).name : m_stringBundle.get("unknown");
@@ -95,13 +95,13 @@ public class LevelSelectScreen implements Screen {
 		Label startAtLabel = new Label(m_stringBundle.get("level_pack_start_at"), m_uiSkin, "default");
 		m_window.addActor(startAtLabel);
 		startAtLabel.setWidth(90);
-		startAtLabel.setPosition(15.0f,m_levelPackDifficulty.getY() - 45.0f);
+		startAtLabel.setPosition(15.0f,m_levelPackDifficulty.getY() - 32.0f);
 		
 		m_startLevel = new TextField("1", m_uiSkin, "default");
 		m_window.addActor(m_startLevel);
 		m_startLevel.setWidth(175);
 		m_startLevel.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
-		m_startLevel.setPosition(110.0f, m_levelPackDifficulty.getY() - 60.0f);
+		m_startLevel.setPosition(110.0f, m_levelPackDifficulty.getY() - 40.0f);
 		
 		
 		Button cancelButton = new TextButton(m_stringBundle.get("cancel_button"), m_uiSkin, "default");
@@ -146,7 +146,7 @@ public class LevelSelectScreen implements Screen {
 		    }
 		});
 		
-		Button cycleLeftButton = new TextButton("<", m_uiSkin, "default");
+		Button cycleLeftButton = new ImageButton(m_uiSkin, "default");
 		m_window.addActor(cycleLeftButton);
 		cycleLeftButton.setPosition(15.0f, cancelButton.getX() + cycleLeftButton.getHeight() + 10.0f);
 		cycleLeftButton.addListener(new ClickListener() {
@@ -155,8 +155,14 @@ public class LevelSelectScreen implements Screen {
 				cycleLevelPacksLeft();
 		    }
 		});
+		Image arrowLeft = new Image(m_uiSkin, "arrow");
+		cycleLeftButton.addActor(arrowLeft);
+		arrowLeft.setOrigin(arrowLeft.getWidth() / 2, arrowLeft.getHeight() / 2);
+		arrowLeft.setPosition(cycleLeftButton.getWidth() / 2 - arrowLeft.getWidth() / 2, 
+								cycleLeftButton.getHeight() / 2 - arrowLeft.getHeight() / 2);
+		arrowLeft.setRotation(180.0f);
 		
-		Button cycleRightButton = new TextButton(">", m_uiSkin, "default");
+		Button cycleRightButton = new ImageButton(m_uiSkin, "default");
 		m_window.addActor(cycleRightButton);
 		cycleRightButton.setPosition(m_window.getWidth() - 65.0f, cancelButton.getX() + cycleRightButton.getHeight() + 10.0f);
 		cycleRightButton.addListener(new ClickListener() {
@@ -165,6 +171,11 @@ public class LevelSelectScreen implements Screen {
 				cycleLevelPacksRight();
 		    }
 		});
+		Image arrowRight = new Image(m_uiSkin, "arrow");
+		cycleRightButton.addActor(arrowRight);
+		arrowRight.setOrigin(arrowRight.getWidth() / 2, arrowRight.getHeight() / 2);
+		arrowRight.setPosition(cycleRightButton.getWidth() / 2 - arrowRight.getWidth() / 2, 
+								cycleRightButton.getHeight() / 2 - arrowRight.getHeight() / 2);
 		
 		m_stage.addActor(m_window);
 		slideIn();

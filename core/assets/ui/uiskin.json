@@ -15,6 +15,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
 	default: { down: button_down_alt, up: button_up_alt },
 	toggle: { down: button_down_alt, checked: button_down_alt, up: button_up_alt }
 },
+com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
+	default: { down: button_down_alt, up: button_up_alt },
+	defaultSmall: { down: button_small_down_alt, up: button_small_up_alt }
+},
 com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	default: { down: button_down_alt, up: button_up_alt, font: default-font, fontColor: white },
 	toggle: { down: button_down_alt, up: button_up_alt, checked: button_down_alt, font: default-font, fontColor: white, downFontColor: red }

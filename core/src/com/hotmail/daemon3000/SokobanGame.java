@@ -8,7 +8,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.utils.I18NBundle;
+import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.utils.JsonValue.ValueType;
 
 public class SokobanGame extends Game {
 	private String m_language;
@@ -37,6 +38,8 @@ public class SokobanGame extends Game {
 	
 	@Override
 	public void dispose() {
+		saveScores();
+		saveOptions();
 		m_gameMusic.dispose();
 		super.dispose();
 	}
@@ -77,7 +80,7 @@ public class SokobanGame extends Game {
 		}
 	}
 	
-	public void saveScores() {
+	private void saveScores() {
 		FileHandle file = Gdx.files.local("profile/highscores.hsc");
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		try {
@@ -109,5 +112,70 @@ public class SokobanGame extends Game {
 		else {
 			m_highScores = new HashMap<String, HashMap<Integer, GameScore>>();
 		}
+	}
+	
+	private void saveOptions() {
+		FileHandle fileHandle = Gdx.files.local("settings.json");
+		JsonValue root = null;
+		
+		if(fileHandle.exists()) {
+			JsonReader reader = new JsonReader();
+			root = reader.parse(fileHandle);
+			
+			JsonValue width = root.get("width");
+			if(width != null) {
+				width.set(Gdx.graphics.getWidth());
+			}
+			else {
+				width = new JsonValue(Gdx.graphics.getWidth());
+				width.setName("width");
+				if(root.child != null) {
+					root.child.setNext(width);
+					width.setPrev(root.child);
+				}
+				else {
+					root.child = width;
+				}
+			}
+			
+			JsonValue height = root.get("height");
+			if(height != null) {
+				height.set(Gdx.graphics.getHeight());
+			}
+			else {
+				height = new JsonValue(Gdx.graphics.getHeight());
+				height.setName("height");
+				width.setNext(height);
+				height.setPrev(width);
+			}
+			
+			JsonValue fullscreen = root.get("fullscreen");
+			if(fullscreen != null) {
+				fullscreen.set(Gdx.graphics.isFullscreen());
+			}
+			else {
+				fullscreen = new JsonValue(Gdx.graphics.isFullscreen());
+				fullscreen.setName("fullscreen");
+				height.setNext(fullscreen);
+				fullscreen.setPrev(height);
+			}
+		}
+		else {
+			JsonValue width = new JsonValue(Gdx.graphics.getWidth());
+			width.setName("width");
+			JsonValue height = new JsonValue(Gdx.graphics.getHeight());
+			height.setName("height");
+			JsonValue fullscreen = new JsonValue(Gdx.graphics.isFullscreen());
+			fullscreen.setName("fullscreen");
+			
+			root = new JsonValue(ValueType.object);
+			root.child = width;
+			width.setNext(height);
+			height.setPrev(width);
+			height.setNext(fullscreen);
+			fullscreen.setPrev(height);
+		}
+		
+		fileHandle.writeString(root.prettyPrint(JsonWriter.OutputType.javascript, 0), false);
 	}
 }

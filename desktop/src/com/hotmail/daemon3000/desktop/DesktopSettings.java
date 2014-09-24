@@ -11,7 +11,7 @@ public class DesktopSettings {
 	
 	public DesktopSettings() {
 		width = 800;
-		height = 480;
+		height = 600;
 		title = "Sokoban";
 		language = "en";
 		fullscreen = false;

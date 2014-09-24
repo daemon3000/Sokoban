@@ -35,13 +35,13 @@ public class StartScreen implements Screen {
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(250);
-		m_window.setHeight(300);
+		m_window.setHeight(360);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
 		Button playButton = new TextButton(bundle.get("play_button"), m_uiSkin, "default");
 		m_window.addActor(playButton);
 		playButton.setWidth(220.0f);
-		playButton.setPosition(m_window.getWidth() / 2 - playButton.getWidth() / 2, m_window.getHeight() / 2 + playButton.getHeight() + 5.0f);
+		playButton.setPosition(m_window.getWidth() / 2 - playButton.getWidth() / 2, m_window.getHeight() / 2 + playButton.getHeight() + 30.0f);
 		playButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_click.play();
@@ -92,14 +92,31 @@ public class StartScreen implements Screen {
 		    }
 		});
 		
+		Button optionsButton = new TextButton(bundle.get("options_button"), m_uiSkin, "default");
+		m_window.addActor(optionsButton);
+		optionsButton.setWidth(220.0f);
+		optionsButton.setPosition(m_window.getWidth() / 2 - optionsButton.getWidth() / 2, creditsButton.getY() - optionsButton.getHeight() - 10.0f);
+		optionsButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				m_click.play();
+				slideOut();
+				Timer.schedule(new Task() {
+					@Override
+					public void run() {
+						dispose();
+						m_game.setScreen(new OptionsScreen(m_game, true));
+					};
+				}, 0.2f);
+		    }
+		});
+		
 		Button exitButton = new TextButton(bundle.get("exit_button"), m_uiSkin, "default");
 		m_window.addActor(exitButton);
 		exitButton.setWidth(220.0f);
-		exitButton.setPosition(m_window.getWidth() / 2 - exitButton.getWidth() / 2, creditsButton.getY() - exitButton.getHeight() - 10.0f);
+		exitButton.setPosition(m_window.getWidth() / 2 - exitButton.getWidth() / 2, optionsButton.getY() - exitButton.getHeight() - 10.0f);
 		exitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_click.play();
-				m_game.saveScores();
 				Timer.schedule(new Task() {
 					@Override
 					public void run() {

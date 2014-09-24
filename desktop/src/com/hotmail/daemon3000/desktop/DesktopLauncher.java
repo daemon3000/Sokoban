@@ -7,7 +7,8 @@ import java.io.IOException;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.hotmail.daemon3000.SokobanGame;
 
 public class DesktopLauncher {
@@ -31,9 +32,18 @@ public class DesktopLauncher {
 	private static DesktopSettings loadSettings() {
 		DesktopSettings settings = null;
 		try {
-			FileInputStream stream = new FileInputStream("config.json");
-			Json json = new Json();
-			settings = json.fromJson(DesktopSettings.class, stream);
+			FileInputStream stream = new FileInputStream("settings.json");
+			JsonReader reader = new JsonReader();
+			JsonValue root = reader.parse(stream);
+			settings = new DesktopSettings();
+			settings.width = root.getInt("width", 800);
+			settings.height = root.getInt("height", 600);
+			settings.title = root.getString("title", "Sokoban");
+			settings.fullscreen = root.getBoolean("fullscreen", false);
+			settings.language = root.getString("language", "en");
+			settings.useGL30 = root.getBoolean("useGL30", false);
+			settings.vSyncEnabled = root.getBoolean("vSyncEnabled", false);
+			
 			stream.close();
 		}
 		catch(FileNotFoundException e) {

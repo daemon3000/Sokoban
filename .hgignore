@@ -68,3 +68,4 @@ build/
 desktop/profile/
 desktop/addons/
 desktop/config.json
+desktop/settings.json
