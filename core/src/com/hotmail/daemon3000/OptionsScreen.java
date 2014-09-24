@@ -177,7 +177,7 @@ public class OptionsScreen implements Screen {
 			m_lastFullscreen = m_fullscreen.isChecked();
 			
 			DisplayMode mode = m_displayModes[m_currentResolution];
-			Gdx.graphics.setDisplayMode(mode.width, mode.height, m_lastFullscreen);
+			m_game.getPlatformSettings().changeResolution(mode.width, mode.height, m_lastFullscreen);
 			
 			//	I reload the Options screen because the widgets get messed up
 			//	when you change the resolution and I have no idea why it happens.

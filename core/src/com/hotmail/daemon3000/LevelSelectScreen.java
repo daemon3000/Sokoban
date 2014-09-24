@@ -36,7 +36,9 @@ public class LevelSelectScreen implements Screen {
 		m_stringBundle = m_game.getStringBundle();
 		
 		loadLevelPackList(Gdx.files.internal("levels/index.json"), true);
-		loadLevelPackList(Gdx.files.local("addons/levels/index.json"), false);
+		if(m_game.getPlatformSettings().allowsAddonLevels()) {
+			loadLevelPackList(m_game.getPlatformSettings().getAddonLevelPath(), false);
+		}
 		createWidgets();
 		Gdx.input.setInputProcessor(m_stage);
 	}

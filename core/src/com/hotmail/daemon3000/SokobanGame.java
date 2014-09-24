@@ -9,23 +9,22 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.*;
-import com.badlogic.gdx.utils.JsonValue.ValueType;
 
 public class SokobanGame extends Game {
-	private String m_language;
+	private PlatformSettings m_platformSettings;
 	private I18NBundle m_stringBundle;
 	private Music m_gameMusic;
 	private HashMap<String, HashMap<Integer, GameScore>> m_highScores;
 	
-	public SokobanGame(String language) {
-		m_language = language;
+	public SokobanGame(PlatformSettings platformSettings) {
+		m_platformSettings = platformSettings;
 	}
 	
 	@Override
 	public void create() {
 		loadScores();
 		
-		Locale locale = new Locale(m_language);
+		Locale locale = new Locale(m_platformSettings.getLanguage());
 		m_stringBundle = I18NBundle.createBundle(Gdx.files.internal("i18n/sokoban"), locale);
 		
 		m_gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/music.ogg"));
@@ -39,9 +38,13 @@ public class SokobanGame extends Game {
 	@Override
 	public void dispose() {
 		saveScores();
-		saveOptions();
+		m_platformSettings.saveSettings();
 		m_gameMusic.dispose();
 		super.dispose();
+	}
+	
+	public PlatformSettings getPlatformSettings() {
+		return m_platformSettings;
 	}
 	
 	public I18NBundle getStringBundle() {
@@ -81,7 +84,7 @@ public class SokobanGame extends Game {
 	}
 	
 	private void saveScores() {
-		FileHandle file = Gdx.files.local("profile/highscores.hsc");
+		FileHandle file = m_platformSettings.getHighscoresPath();
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		try {
 			ObjectOutputStream objStream = new ObjectOutputStream(stream);
@@ -96,7 +99,7 @@ public class SokobanGame extends Game {
 	
 	@SuppressWarnings("unchecked")
 	private void loadScores() {
-		FileHandle file = Gdx.files.local("profile/highscores.hsc");
+		FileHandle file = m_platformSettings.getHighscoresPath();
 		if(file.exists()) {
 			try {
 				ObjectInputStream stream = new ObjectInputStream(file.read());
@@ -112,70 +115,5 @@ public class SokobanGame extends Game {
 		else {
 			m_highScores = new HashMap<String, HashMap<Integer, GameScore>>();
 		}
-	}
-	
-	private void saveOptions() {
-		FileHandle fileHandle = Gdx.files.local("settings.json");
-		JsonValue root = null;
-		
-		if(fileHandle.exists()) {
-			JsonReader reader = new JsonReader();
-			root = reader.parse(fileHandle);
-			
-			JsonValue width = root.get("width");
-			if(width != null) {
-				width.set(Gdx.graphics.getWidth());
-			}
-			else {
-				width = new JsonValue(Gdx.graphics.getWidth());
-				width.setName("width");
-				if(root.child != null) {
-					root.child.setNext(width);
-					width.setPrev(root.child);
-				}
-				else {
-					root.child = width;
-				}
-			}
-			
-			JsonValue height = root.get("height");
-			if(height != null) {
-				height.set(Gdx.graphics.getHeight());
-			}
-			else {
-				height = new JsonValue(Gdx.graphics.getHeight());
-				height.setName("height");
-				width.setNext(height);
-				height.setPrev(width);
-			}
-			
-			JsonValue fullscreen = root.get("fullscreen");
-			if(fullscreen != null) {
-				fullscreen.set(Gdx.graphics.isFullscreen());
-			}
-			else {
-				fullscreen = new JsonValue(Gdx.graphics.isFullscreen());
-				fullscreen.setName("fullscreen");
-				height.setNext(fullscreen);
-				fullscreen.setPrev(height);
-			}
-		}
-		else {
-			JsonValue width = new JsonValue(Gdx.graphics.getWidth());
-			width.setName("width");
-			JsonValue height = new JsonValue(Gdx.graphics.getHeight());
-			height.setName("height");
-			JsonValue fullscreen = new JsonValue(Gdx.graphics.isFullscreen());
-			fullscreen.setName("fullscreen");
-			
-			root = new JsonValue(ValueType.object);
-			root.child = width;
-			width.setNext(height);
-			height.setPrev(width);
-			height.setNext(fullscreen);
-			fullscreen.setPrev(height);
-		}
-		
-		fileHandle.writeString(root.prettyPrint(JsonWriter.OutputType.javascript, 0), false);
 	}
 }
