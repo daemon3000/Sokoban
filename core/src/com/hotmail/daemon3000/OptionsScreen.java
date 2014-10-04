@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
@@ -70,6 +71,36 @@ public class OptionsScreen implements Screen {
 					 			 Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		}
 		
+		Button backButton = new TextButton(bundle.get("back_button"), m_uiSkin, "default");
+		m_window.addActor(backButton);
+		backButton.setWidth(150.0f);
+		backButton.setPosition(15.0f, 10.0f);
+		backButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				m_click.play();
+				slideOut();
+				Timer.schedule(new Task() {
+					@Override
+					public void run() {
+						dispose();
+						m_game.setScreen(new StartScreen(m_game));
+					};
+				}, 0.2f);
+		    }
+		});
+		
+		Button applyButton = new TextButton(bundle.get("apply_button"), m_uiSkin, "default");
+		m_window.addActor(applyButton);
+		applyButton.setWidth(150.0f);
+		applyButton.setPosition(m_window.getWidth() - applyButton.getWidth() - 15.0f, 10.0f);
+		applyButton.addListener(new ClickListener() {
+			public void clicked(InputEvent event, float x, float y) {
+				m_click.play();
+				applyGraphicsChanges();
+		    }
+		});
+		
+		//	RESOLUTION
 		String text = String.format("%d X %d", m_displayModes[m_currentResolution].width, 
 											   m_displayModes[m_currentResolution].height);
 		m_resolutionText = new Label(text, m_uiSkin, "default");
@@ -101,55 +132,30 @@ public class OptionsScreen implements Screen {
 		arrowRight.setPosition(cycleRightButton.getWidth() / 2 - arrowRight.getWidth() / 2, 
 								cycleRightButton.getHeight() / 2 - arrowRight.getHeight() / 2);
 		
-		HorizontalGroup resolutionGroup = new HorizontalGroup();
-		m_window.addActor(resolutionGroup);
-		resolutionGroup.space(20.0f);
-		resolutionGroup.addActor(new Label(bundle.get("resolution_label"), m_uiSkin, "default"));
-		resolutionGroup.addActor(cycleLeftButton);
-		resolutionGroup.addActor(m_resolutionText);
-		resolutionGroup.addActor(cycleRightButton);
-		resolutionGroup.pack();
-		resolutionGroup.setPosition(15.0f, m_window.getHeight() - 70.0f);
+		HorizontalGroup resolutionWidget = new HorizontalGroup();
+		m_window.addActor(resolutionWidget);
+		resolutionWidget.space(20.0f);
+		resolutionWidget.addActor(cycleLeftButton);
+		resolutionWidget.addActor(m_resolutionText);
+		resolutionWidget.addActor(cycleRightButton);
+		resolutionWidget.pack();
 		
+		//	FULLSCREEN
 		m_fullscreen = new CheckBox("", m_uiSkin, "default");
 		m_fullscreen.setChecked(m_lastFullscreen);
 		
-		HorizontalGroup fullscreenGroup = new HorizontalGroup();
-		m_window.addActor(fullscreenGroup);
-		fullscreenGroup.space(10.0f);
-		fullscreenGroup.addActor(new Label(bundle.get("fullscreen_label"), m_uiSkin, "default"));
-		fullscreenGroup.addActor(m_fullscreen);
-		fullscreenGroup.pack();
-		fullscreenGroup.setPosition(15.0f, m_window.getHeight() - 125.0f);
-		
-		Button backButton = new TextButton(bundle.get("back_button"), m_uiSkin, "default");
-		m_window.addActor(backButton);
-		backButton.setWidth(150.0f);
-		backButton.setPosition(15.0f, 10.0f);
-		backButton.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				m_click.play();
-				slideOut();
-				Timer.schedule(new Task() {
-					@Override
-					public void run() {
-						dispose();
-						m_game.setScreen(new StartScreen(m_game));
-					};
-				}, 0.2f);
-		    }
-		});
-		
-		Button applyButton = new TextButton(bundle.get("apply_button"), m_uiSkin, "default");
-		m_window.addActor(applyButton);
-		applyButton.setWidth(150.0f);
-		applyButton.setPosition(m_window.getWidth() - applyButton.getWidth() - 15.0f, 10.0f);
-		applyButton.addListener(new ClickListener() {
-			public void clicked(InputEvent event, float x, float y) {
-				m_click.play();
-				applyGraphicsChanges();
-		    }
-		});
+		//	LAYOUT TABLE
+		Table layoutTable = new Table();
+		m_window.addActor(layoutTable);
+		layoutTable.left().top();
+		layoutTable.setWidth(220.0f);
+		layoutTable.setHeight(150.0f);
+		layoutTable.setPosition(20.0f, m_window.getHeight() - layoutTable.getHeight() - 45.0f);
+		layoutTable.add(new Label(bundle.get("resolution_label"), m_uiSkin, "default")).align(Align.left).width(125.0f).height(40.0f);
+		layoutTable.add(resolutionWidget);
+		layoutTable.row();
+		layoutTable.add(new Label(bundle.get("fullscreen_label"), m_uiSkin, "default")).align(Align.left).width(125.0f).height(40.0f);
+		layoutTable.add(m_fullscreen).align(Align.left);
 		
 		m_stage.addActor(m_window);
 		if(slideIn) {
@@ -179,8 +185,6 @@ public class OptionsScreen implements Screen {
 			DisplayMode mode = m_displayModes[m_currentResolution];
 			m_game.getPlatformSettings().changeResolution(mode.width, mode.height, m_lastFullscreen);
 			
-			//	I reload the Options screen because the widgets get messed up
-			//	when you change the resolution and I have no idea why it happens.
 			dispose();
 			m_game.setScreen(new OptionsScreen(m_game, false));
 		}
@@ -213,8 +217,8 @@ public class OptionsScreen implements Screen {
 	private void sortDisplayModes() {
 		Arrays.sort(m_displayModes, new Comparator<DisplayMode>() {
 			public int compare(DisplayMode a, DisplayMode b) {
-				long sizeA = a.width * a.height;
-				long sizeB = b.width * b.height;
+				long sizeA = (long)a.width * (long)a.height;
+				long sizeB = (long)b.width * (long)b.height;
 				
 				if(sizeA > sizeB) {
 					return 1;
@@ -238,6 +242,7 @@ public class OptionsScreen implements Screen {
 
 	@Override
 	public void resize(int width, int height) {
+		m_stage.getViewport().update(width, height);
 	}
 
 	@Override
