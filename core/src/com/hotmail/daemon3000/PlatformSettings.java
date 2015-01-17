@@ -7,8 +7,10 @@ public interface PlatformSettings {
 	boolean allowsAddonLevels();
 	FileHandle getAddonLevelPath();
 	FileHandle getHighscoresPath();
-	int getWidth();
-	int getHeight();
+	int getWindowWidth();
+	int getWindowHeight();
+	int getVirtualWidth();
+	int getVirtualHeight();
 	boolean getFullscreen();
 	String getTitle();
 	String getLanguage();

@@ -112,6 +112,8 @@ public class StatusPanel {
 		m_bestTimeLabel.setText(m_stringBundle.format("best_time_label", 0));
 		m_bestTimeLabel.pack();
 		m_bestTimeLabel.setX(m_window.getWidth() - m_bestTimeLabel.getWidth() - 10.0f);
+		
+		m_lastElapsedTime = 0;
 	}
 
 	public void dispose() {

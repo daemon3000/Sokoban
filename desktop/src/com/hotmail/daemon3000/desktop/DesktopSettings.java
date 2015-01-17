@@ -66,13 +66,22 @@ public class DesktopSettings implements PlatformSettings {
 	}
 	
 	@Override
-	public int getWidth() {
+	public int getWindowWidth() {
 		return m_width;
 	}
 	
-	@Override
-	public int getHeight() {
+	public int getWindowHeight() {
 		return m_height;
+	}
+	
+	@Override
+	public int getVirtualWidth() {
+		return 800;
+	}
+	
+	@Override
+	public int getVirtualHeight() {
+		return 600;
 	}
 	
 	@Override

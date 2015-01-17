@@ -2,24 +2,19 @@ package com.hotmail.daemon3000;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
-public class GameScreen implements Screen {
+public class GameScene implements Scene {
 	private SokobanGame m_game;
-	private SpriteBatch m_spriteBatch;
-	private OrthographicCamera m_camera;
 	private Texture m_tileSheet;
-	private TextureRegion[] m_tileRegions;
+	private TextureRegion[] m_tileSet;
 	private Skin m_uiSkin;
 	private Sound m_click;
 	private StatusPanel m_statusPanel;
@@ -32,19 +27,15 @@ public class GameScreen implements Screen {
 	private int m_bestMoves = 0;
 	private float m_bestTime = 0.0f; 
 	
-	public GameScreen(SokobanGame game, String levelPackID, FileHandle levelPackFile, int startLevel) {
+	public GameScene(SokobanGame game, String levelPackID, FileHandle levelPackFile, int startLevel) {
 		loadTiles();
 		m_game = game;
-		m_spriteBatch = new SpriteBatch();
-		m_camera = new OrthographicCamera();
-		m_camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		m_camera.zoom = 2.0f;
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
 		m_statusPanel = new StatusPanel(m_uiSkin, m_game.getStringBundle());
 		m_pauseMenu = new PauseMenu(m_uiSkin, m_click, m_game.getStringBundle());
 		m_levelCompleteMenu = new LevelCompleteMenu(m_uiSkin, m_click, m_game.getStringBundle());
-		m_levelPack = new LevelPack(levelPackID, levelPackFile, m_spriteBatch, m_camera, m_tileRegions);
+		m_levelPack = new LevelPack(levelPackID, levelPackFile, m_tileSet);
 		
 		m_pauseMenu.addResetLevelListener(new ActionListener() {
 			public void handle() {
@@ -78,36 +69,45 @@ public class GameScreen implements Screen {
 	
 	private void loadTiles() {
 		m_tileSheet = new Texture("img/tilesheet.png");
-		m_tileRegions = new TextureRegion[m_tileSheet.getWidth() / Tiles.TILE_WIDTH];
-		for(int i = 0; i < m_tileRegions.length; i++) {
-			m_tileRegions[i] = new TextureRegion(m_tileSheet, i * Tiles.TILE_WIDTH, 0, Tiles.TILE_WIDTH, Tiles.TILE_HEIGHT);
+		m_tileSet = new TextureRegion[m_tileSheet.getWidth() / Tiles.TILE_WIDTH];
+		for(int i = 0; i < m_tileSet.length; i++) {
+			m_tileSet[i] = new TextureRegion(m_tileSheet, i * Tiles.TILE_WIDTH, 0, Tiles.TILE_WIDTH, Tiles.TILE_HEIGHT);
 		}
 	}
 	
 	@Override
-	public void render(float delta) {
+	public void update(float delta) {
+		if(m_currentLevel != null)
+		{
+			if(m_pauseMenu.isOpen()) {
+				m_pauseMenu.update(delta);
+			}
+			else if(m_levelCompleteMenu.isOpen()) {
+				m_levelCompleteMenu.update(delta);
+			}
+			else {
+				handleInput();
+				m_elapsedTime += delta;
+				m_statusPanel.setElapsedTime(m_elapsedTime);
+			}
+		}
+	}
+	
+	@Override
+	public void render() {
 		Gdx.gl.glClearColor(0.0f, 0.45f, 1.0f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		if(m_currentLevel == null)
-			return;
-		
-		if(m_pauseMenu.isOpen()) {
+		if(m_currentLevel != null)
+		{
 			m_currentLevel.render();
 			m_statusPanel.render();
-			m_pauseMenu.render(delta);
-		}
-		else if(m_levelCompleteMenu.isOpen()) {
-			m_currentLevel.render();
-			m_statusPanel.render();
-			m_levelCompleteMenu.render(delta);
-		}
-		else {
-			handleInput();
-			m_currentLevel.render();
-			m_elapsedTime += delta;
-			m_statusPanel.setElapsedTime(m_elapsedTime);
-			m_statusPanel.render();
+			if(m_pauseMenu.isOpen()) {
+				m_pauseMenu.render();
+			}
+			else if(m_levelCompleteMenu.isOpen()) {
+				m_levelCompleteMenu.render();
+			}
 		}
 	}
 	
@@ -145,9 +145,9 @@ public class GameScreen implements Screen {
 				}
 			});
 			
-			GameScore gameScore = m_game.getScore(m_levelPack, m_currentLevelIndex);
-			m_bestMoves = gameScore != null ? gameScore.bestMoves : 0;
-			m_bestTime = gameScore != null ? gameScore.bestTime : 0.0f;
+			HighScore score = m_game.getScore(m_levelPack);
+			m_bestMoves = score != null ? score.bestMoves[m_currentLevelIndex] : 0;
+			m_bestTime = score != null ? score.bestTime[m_currentLevelIndex] : 0.0f;
 		}
 		m_elapsedTime = 0.0f;
 		m_statusPanel.reset();
@@ -170,28 +170,20 @@ public class GameScreen implements Screen {
 	}
 	
 	private void resetLevel() {
-		m_pauseMenu.close();
 		loadLevel(m_currentLevelIndex);
 	}
 	
 	private void loadNextLevel() {
 		if(m_currentLevelIndex < m_levelPack.getLevelCount() - 1) {
-			m_pauseMenu.close();
 			loadLevel(m_currentLevelIndex + 1);
 		}
 	}
 	
 	private void quitGame() {
-		if(m_pauseMenu.isOpen())
-			m_pauseMenu.close();
-		else if(m_levelCompleteMenu.isOpen())
-			m_levelCompleteMenu.close();
-		
 		Timer.schedule(new Task() {
 			@Override
 			public void run() {
-				dispose();
-				m_game.setScreen(new StartScreen(m_game));
+				m_game.setScene(new StartScene(m_game));
 			}
 			
 		}, 0.2f);
@@ -199,14 +191,6 @@ public class GameScreen implements Screen {
 	
 	@Override
 	public void resize(int width, int height) {
-	}
-
-	@Override
-	public void show() {
-	}
-
-	@Override
-	public void hide() {
 	}
 
 	@Override
@@ -220,11 +204,10 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
 		m_currentLevel = null;
-		m_tileRegions = null;
+		m_tileSet = null;
 		m_statusPanel.dispose();
 		m_pauseMenu.dispose();
 		m_levelPack.dispose();
-		m_spriteBatch.dispose();
 		m_uiSkin.dispose();
 		m_click.dispose();
 		m_tileSheet.dispose();

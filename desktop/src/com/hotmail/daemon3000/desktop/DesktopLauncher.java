@@ -9,8 +9,8 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		DesktopSettings settings = new DesktopSettings();
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = settings.getWidth();
-		config.height = settings.getHeight();
+		config.width = settings.getWindowWidth();
+		config.height = settings.getWindowHeight();
 		config.title = settings.getTitle();
 		config.resizable = false;
 		config.fullscreen = settings.getFullscreen();

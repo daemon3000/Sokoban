@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Locale;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
@@ -14,7 +13,7 @@ public class SokobanGame extends Game {
 	private PlatformSettings m_platformSettings;
 	private I18NBundle m_stringBundle;
 	private Music m_gameMusic;
-	private HashMap<String, HashMap<Integer, GameScore>> m_highScores;
+	private HashMap<String, HighScore> m_highScores;
 	
 	public SokobanGame(PlatformSettings platformSettings) {
 		m_platformSettings = platformSettings;
@@ -32,15 +31,20 @@ public class SokobanGame extends Game {
 		m_gameMusic.setLooping(true);
 		m_gameMusic.play();
 		
-		setScreen(new StartScreen(this));
+		setScene(new StartScene(this));
 	}
 	
 	@Override
 	public void dispose() {
-		saveScores();
+		
 		m_platformSettings.saveSettings();
 		m_gameMusic.dispose();
 		super.dispose();
+	}
+	
+	public void exit() {
+		saveScores();
+		Gdx.app.exit();
 	}
 	
 	public PlatformSettings getPlatformSettings() {
@@ -51,35 +55,23 @@ public class SokobanGame extends Game {
 		return m_stringBundle;
 	}
 	
-	public GameScore getScore(LevelPack levelPack, int levelIndex) {
-		HashMap<Integer, GameScore> scores = m_highScores.get(levelPack.getID());
-		if(scores != null) {
-			return scores.get(levelIndex);
-		}
-		else {
-			return null;
-		}
+	public HighScore getScore(LevelPack levelPack) {
+		return m_highScores.get(levelPack.getID());
 	}
 	
 	public void setScore(LevelPack levelPack, int levelIndex, int moves, float time) {
-		HashMap<Integer, GameScore> scores = m_highScores.get(levelPack.getID());
-		if(scores != null) {
-			GameScore score = scores.get(levelIndex);
-			if(score != null) {
-				score.bestMoves = moves;
-				score.bestTime = time;
-			}
-			else {
-				score = new GameScore(moves, time);
-				scores.put(levelIndex, score);
+		HighScore score = m_highScores.get(levelPack.getID());
+		if(score != null) {
+			if(levelIndex >= 0 && levelIndex < score.bestMoves.length) {
+				score.bestMoves[levelIndex] = moves;
+				score.bestTime[levelIndex] = time;
 			}
 		}
 		else {
-			scores = new HashMap<Integer, GameScore>();
-			GameScore score = new GameScore(moves, time);
-			
-			scores.put(levelIndex, score);
-			m_highScores.put(levelPack.getID(), scores);
+			score = new HighScore(levelPack.getLevelCount());
+			score.bestMoves[levelIndex] = moves;
+			score.bestTime[levelIndex] = time;
+			m_highScores.put(levelPack.getID(), score);
 		}
 	}
 	
@@ -103,17 +95,17 @@ public class SokobanGame extends Game {
 		if(file.exists()) {
 			try {
 				ObjectInputStream stream = new ObjectInputStream(file.read());
-				m_highScores = (HashMap<String, HashMap<Integer, GameScore>>)stream.readObject();
+				m_highScores = (HashMap<String, HighScore>)stream.readObject();
 			}
 			catch(ClassNotFoundException e1) {
-				m_highScores = new HashMap<String, HashMap<Integer, GameScore>>();
+				m_highScores = new HashMap<String, HighScore>();
 			}
 			catch(IOException e2) {
-				m_highScores = new HashMap<String, HashMap<Integer, GameScore>>();
+				m_highScores = new HashMap<String, HighScore>();
 			}
 		}
 		else {
-			m_highScores = new HashMap<String, HashMap<Integer, GameScore>>();
+			m_highScores = new HashMap<String, HighScore>();
 		}
 	}
 }

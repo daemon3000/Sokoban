@@ -3,7 +3,6 @@ package com.hotmail.daemon3000;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
@@ -12,8 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.Timer.Task;
 
-public class LevelSelectScreen implements Screen {
-	private Skin m_uiSkin;
+public class LevelSelectScreen extends Screen {
 	private Stage m_stage;
 	private Window m_window;
 	private Label m_levelPackName;
@@ -27,10 +25,10 @@ public class LevelSelectScreen implements Screen {
 	I18NBundle m_stringBundle;
 	private int m_currentLevelPack = 0;
 	
-	public LevelSelectScreen(SokobanGame game) {
-		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+	public LevelSelectScreen(ScreenManager owner, SokobanGame game, Skin uiSkin, Sound click) {
+		super(ScreenID.LevelSelect, owner);
 		m_stage = new Stage();
-		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
+		m_click = click;
 		m_levelPacks = new Array<LevelPackData>();
 		m_game = game;
 		m_stringBundle = m_game.getStringBundle();
@@ -39,8 +37,7 @@ public class LevelSelectScreen implements Screen {
 		if(m_game.getPlatformSettings().allowsAddonLevels()) {
 			loadLevelPackList(m_game.getPlatformSettings().getAddonLevelPath(), false);
 		}
-		createWidgets();
-		Gdx.input.setInputProcessor(m_stage);
+		createWidgets(uiSkin);
 	}
 	
 	private void loadLevelPackList(FileHandle fileHandle, boolean internal) {
@@ -65,7 +62,7 @@ public class LevelSelectScreen implements Screen {
 		}
 	}
 	
-	private void createWidgets() {
+	private void createWidgets(Skin m_uiSkin) {
 		m_window = new Window(m_stringBundle.get("select_level_title"), m_uiSkin, "default");
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
@@ -117,8 +114,7 @@ public class LevelSelectScreen implements Screen {
 				Timer.schedule(new Task() {
 					@Override
 					public void run() {
-						m_game.setScreen(new StartScreen(m_game));
-						dispose();
+						getOwner().changeScreen(ScreenID.Start);
 					};
 				}, 0.2f);
 		    }
@@ -140,8 +136,7 @@ public class LevelSelectScreen implements Screen {
 							FileHandle fileHandle = levelPackData.isInternal ? Gdx.files.internal(levelPackData.file) :
 																				Gdx.files.local(levelPackData.file);
 																			
-							m_game.setScreen(new GameScreen(m_game, levelPackData.id, fileHandle, parseStartLevel()));
-							dispose();
+							m_game.setScene(new GameScene(m_game, levelPackData.id, fileHandle, parseStartLevel()));
 						}
 					}, 0.2f);
 				}
@@ -180,7 +175,6 @@ public class LevelSelectScreen implements Screen {
 								cycleRightButton.getHeight() / 2 - arrowRight.getHeight() / 2);
 		
 		m_stage.addActor(m_window);
-		slideIn();
 	}
 	
 	private void cycleLevelPacksLeft() {
@@ -241,11 +235,24 @@ public class LevelSelectScreen implements Screen {
 	}
 	
 	@Override
-	public void render(float delta) {
-		Gdx.gl.glClearColor(0.0f, 0.45f, 1.0f, 1.0f);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	public void onEnter() {
+		slideIn();
+		Gdx.input.setInputProcessor(m_stage);
+	}
+
+	@Override
+	public void update(float delta) {
 		m_stage.act(delta);
+	}
+	
+	@Override
+	public void render() {
 		m_stage.draw();
+	}
+	
+	@Override
+	public void onExit() {
+		Gdx.input.setInputProcessor(null);
 	}
 
 	@Override
@@ -253,25 +260,10 @@ public class LevelSelectScreen implements Screen {
 	}
 
 	@Override
-	public void show() {
-	}
-
-	@Override
-	public void hide() {
-	}
-
-	@Override
-	public void pause() {
-	}
-
-	@Override
-	public void resume() {
-	}
-
-	@Override
 	public void dispose() {
 		m_stage.dispose();
-		m_uiSkin.dispose();
-		m_click.dispose();
+		m_click = null;
+		m_game = null;
+		m_stringBundle = null;
 	}
 }

@@ -3,6 +3,7 @@ package com.hotmail.daemon3000;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,34 +15,35 @@ public class LevelPack {
 	
 	private SpriteBatch m_spriteBatch;
 	private OrthographicCamera m_camera;
-	private TextureRegion[] m_tileRegions;
-	private Array<LevelData> m_levels;
-	private int m_maxLevelSize;
+	private TextureRegion[] m_tileSet;
+	private Array<LevelData> m_levelData;
+	private Level m_loadedLevel;
 	private String m_id;
-	private Level m_lastLoadedLevel = null;
+	private int m_maxLevelSize;
 	private boolean m_isDisposed = false;
 	
-	public LevelPack(String id, FileHandle fileHandle, SpriteBatch batch, OrthographicCamera camera, TextureRegion[] tileRegions) {
+	public LevelPack(String id, FileHandle fileHandle, TextureRegion[] tileSet) {
 		m_id = id;
-		m_spriteBatch = batch;
-		m_camera = camera;
-		m_tileRegions = tileRegions;
-
-		loadLevels(fileHandle);
+		m_tileSet = tileSet;
+		m_spriteBatch = new SpriteBatch();
+		m_camera = new OrthographicCamera();
+		m_camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		m_camera.zoom = 2.0f;
+		parse(fileHandle);
 	}
 	
-	private void loadLevels(FileHandle fileHandle) {
+	private void parse(FileHandle fileHandle) {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(fileHandle.reader());
 		}
 		catch(GdxRuntimeException e) {
-			m_levels = new Array<LevelData>();
+			m_levelData = new Array<LevelData>();
 			return;
 		}
 		
 		try {
-			m_levels = new Array<LevelData>();
+			m_levelData = new Array<LevelData>();
 			
 			Array<String> levelLines = new Array<String>();
 			int levelWidth = 0, maxLevelWidth = 0, maxLevelHeight = 0;
@@ -52,7 +54,7 @@ public class LevelPack {
 						if(levelLines.size > maxLevelHeight)
 							maxLevelHeight = levelLines.size;
 						
-						createLevel(levelLines, levelWidth);
+						parseLevelData(levelLines, levelWidth);
 						levelLines.clear();
 						levelWidth = 0;
 					}
@@ -67,7 +69,7 @@ public class LevelPack {
 			}
 			
 			if(levelLines.size >= MIN_LEVEL_SIZE) {
-				createLevel(levelLines, levelWidth);
+				parseLevelData(levelLines, levelWidth);
 			}
 			
 			m_maxLevelSize = maxLevelWidth * maxLevelHeight;
@@ -75,21 +77,21 @@ public class LevelPack {
 			reader.close();
 		}
 		catch(IOException ex) {
-			if(m_levels == null)
-				m_levels = new Array<LevelData>();
+			if(m_levelData == null)
+				m_levelData = new Array<LevelData>();
 			else
-				m_levels.clear();
+				m_levelData.clear();
 		}
 	}
 	
-	private void createLevel(Array<String> levelLines, int levelWidth) {
-		int levelHeight = levelLines.size;
+	private void parseLevelData(Array<String> lines, int width) {
+		int levelHeight = lines.size;
 		int playerPosX = 0, playerPosY = 0;
 		int goalCount = 0, activeGoalCountAtStart = 0;
-		byte[] tiles = new byte[levelLines.size * levelWidth];
+		byte[] tiles = new byte[lines.size * width];
 		
 		int count = 0, lineLength = 0;
-		for(String line: levelLines) {
+		for(String line: lines) {
 			lineLength = line.length();
 			for(int i = 0; i < lineLength; i++) {
 				switch(line.charAt(i)) {
@@ -99,7 +101,7 @@ public class LevelPack {
 				case '@':
 					tiles[count] = Tiles.TILE_PLAYER;
 					playerPosX = i;
-					playerPosY = count / levelWidth;
+					playerPosY = count / width;
 					break;
 				case '$':
 					tiles[count] = Tiles.TILE_CRATE;
@@ -111,7 +113,7 @@ public class LevelPack {
 				case '+':
 					tiles[count] = Tiles.TILE_PLAYER_ON_GOAL;
 					playerPosX = i;
-					playerPosY = count / levelWidth;
+					playerPosY = count / width;
 					goalCount++;
 					break;
 				case '*':
@@ -125,35 +127,35 @@ public class LevelPack {
 				}
 				count++;
 			}
-			if(lineLength < levelWidth) {
-				for(int i = lineLength; i < levelWidth; i++)
+			if(lineLength < width) {
+				for(int i = lineLength; i < width; i++)
 					tiles[count++] = Tiles.TILE_EMPTY;
 			}
 		}
 		
-		m_levels.add(new LevelData(tiles, levelWidth, levelHeight, playerPosX, playerPosY, goalCount, activeGoalCountAtStart));
+		m_levelData.add(new LevelData(tiles, width, levelHeight, playerPosX, playerPosY, goalCount, activeGoalCountAtStart));
 	}
 	
 	public int getLevelCount() {
 		if(!m_isDisposed)
-			return m_levels.size;
+			return m_levelData.size;
 		else
 			return 0;
 	}
 	
 	public Level getLevel(int index) {
 		if(!m_isDisposed) {
-			if(index < 0 || index >= m_levels.size)
+			if(index < 0 || index >= m_levelData.size)
 				return null;
 			
-			if(m_lastLoadedLevel != null) {
-				m_lastLoadedLevel.initialize(m_levels.get(index));
+			if(m_loadedLevel != null) {
+				m_loadedLevel.initialize(m_levelData.get(index));
 			}
 			else {
-				m_lastLoadedLevel = new Level(m_spriteBatch, m_camera, m_tileRegions, m_maxLevelSize, m_levels.get(index));
+				m_loadedLevel = new Level(m_spriteBatch, m_camera, m_tileSet, m_maxLevelSize, m_levelData.get(index));
 			}
 			
-			return m_lastLoadedLevel;
+			return m_loadedLevel;
 		}
 		
 		return null;
@@ -165,13 +167,12 @@ public class LevelPack {
 	
 	public void dispose() {
 		if(!m_isDisposed) {
-			m_lastLoadedLevel.dispose();
-			m_spriteBatch = null;
-			m_camera = null;
-			m_tileRegions = null;
+			m_loadedLevel.dispose();
+			m_spriteBatch.dispose();;
+			m_tileSet = null;
 			
-			m_levels.clear();
-			m_levels = null;
+			m_levelData.clear();
+			m_levelData = null;
 			
 			m_isDisposed = true;
 		}

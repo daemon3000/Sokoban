@@ -15,33 +15,31 @@ import com.badlogic.gdx.utils.Timer.Task;
 public class LevelCompleteMenu {
 	private Array<ActionListener> m_continueGameListeners;
 	private Array<ActionListener> m_quitGameListeners;
-	private Skin m_uiSkin;
 	private Stage m_stage;
 	private Window m_window;
 	private Sound m_click;
 	private I18NBundle m_stringBundle;
 	private boolean m_isOpen = false;
 	
-	public LevelCompleteMenu(Skin uiSkin, Sound clickSound, I18NBundle stringBundle) {
-		m_uiSkin = uiSkin;
+	public LevelCompleteMenu(Skin uiSkin, Sound click, I18NBundle stringBundle) {
 		m_stage = new Stage();
-		m_click = clickSound;
+		m_click = click;
 		m_stringBundle = stringBundle;
 		m_continueGameListeners = new Array<ActionListener>();
 		m_quitGameListeners = new Array<ActionListener>();
 		
-		createWidgets();
+		createWidgets(uiSkin);
 	}
 	
-	private void createWidgets() {
-		m_window = new Window(m_stringBundle.get("level_complete"), m_uiSkin, "default");
+	private void createWidgets(Skin uiSkin) {
+		m_window = new Window(m_stringBundle.get("level_complete"), uiSkin, "default");
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(250);
 		m_window.setHeight(200);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
-		Button continueButton = new TextButton(m_stringBundle.get("continue_button"), m_uiSkin, "default");
+		Button continueButton = new TextButton(m_stringBundle.get("continue_button"), uiSkin, "default");
 		m_window.addActor(continueButton);
 		continueButton.setWidth(220);
 		continueButton.setPosition(m_window.getWidth() / 2 - continueButton.getWidth() / 2, m_window.getHeight() / 2 - 5.0f);
@@ -55,7 +53,7 @@ public class LevelCompleteMenu {
 		    }
 		});
 		
-		Button quitButton = new TextButton(m_stringBundle.get("quit_button"), m_uiSkin, "default");
+		Button quitButton = new TextButton(m_stringBundle.get("quit_button"), uiSkin, "default");
 		m_window.addActor(quitButton);
 		quitButton.setWidth(220);
 		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, m_window.getHeight() / 2 - quitButton.getHeight() - 15.0f);
@@ -71,8 +69,11 @@ public class LevelCompleteMenu {
 		m_stage.addActor(m_window);
 	}
 	
-	public void render(float delta) {
+	public void update(float delta) {
 		m_stage.act(delta);
+	}
+	
+	public void render() {
 		m_stage.draw();
 	}
 	
@@ -136,7 +137,8 @@ public class LevelCompleteMenu {
 	}
 	
 	public void dispose() {
-		m_stringBundle = null;
 		m_stage.dispose();
+		m_click = null;
+		m_stringBundle = null;
 	}
 }

@@ -2,7 +2,6 @@ package com.hotmail.daemon3000;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -11,36 +10,34 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
-public class StartScreen implements Screen {
-	private Skin m_uiSkin;
+public class StartScreen extends Screen {
+	private SokobanGame m_game;
 	private Stage m_stage;
 	private Window m_window;
 	private Sound m_click;
-	private SokobanGame m_game;
 	
-	public StartScreen(SokobanGame game) {
-		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+	public StartScreen(ScreenManager owner, SokobanGame game, Skin uiSkin, Sound click) {
+		super(ScreenID.Start, owner);
 		m_stage = new Stage();
-		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
+		m_click = click;
 		m_game = game;
 		
-		createWidgets();
-		Gdx.input.setInputProcessor(m_stage);
+		createWidgets(uiSkin);
 	}
 	
-	private void createWidgets() {
+	private void createWidgets(Skin uiSkin) {
 		I18NBundle bundle = m_game.getStringBundle();
 		boolean allowOptionsScreen = m_game.getPlatformSettings().allowsOptionsScreen();
 		float exitButtonPosY = 0.0f;
 		
-		m_window = new Window(bundle.get("main_menu_title"), m_uiSkin, "default");
+		m_window = new Window(bundle.get("main_menu_title"), uiSkin, "default");
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(250);
 		m_window.setHeight(allowOptionsScreen ? 360 : 300);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
-		Button playButton = new TextButton(bundle.get("play_button"), m_uiSkin, "default");
+		Button playButton = new TextButton(bundle.get("play_button"), uiSkin, "default");
 		m_window.addActor(playButton);
 		playButton.setWidth(220.0f);
 		playButton.setPosition(m_window.getWidth() / 2 - playButton.getWidth() / 2, m_window.getHeight() / 2 + playButton.getHeight() + (allowOptionsScreen ? 30.0f : -5.0f));
@@ -51,14 +48,13 @@ public class StartScreen implements Screen {
 				Timer.schedule(new Task() {
 					@Override
 					public void run() {
-						dispose();
-						m_game.setScreen(new LevelSelectScreen(m_game));
+						getOwner().changeScreen(ScreenID.LevelSelect);
 					};
 				}, 0.2f);
 		    }
 		});
 		
-		Button helpButton = new TextButton(bundle.get("help_button"), m_uiSkin, "default");
+		Button helpButton = new TextButton(bundle.get("help_button"), uiSkin, "default");
 		m_window.addActor(helpButton);
 		helpButton.setWidth(220.0f);
 		helpButton.setPosition(m_window.getWidth() / 2 - helpButton.getWidth() / 2, playButton.getY() - helpButton.getHeight() - 10.0f);
@@ -69,14 +65,13 @@ public class StartScreen implements Screen {
 				Timer.schedule(new Task() {
 					@Override
 					public void run() {
-						dispose();
-						m_game.setScreen(new HelpScreen(m_game));
+						getOwner().changeScreen(ScreenID.Help);
 					};
 				}, 0.2f);
 		    }
 		});
 		
-		Button creditsButton = new TextButton(bundle.get("credits_button"), m_uiSkin, "default");
+		Button creditsButton = new TextButton(bundle.get("credits_button"), uiSkin, "default");
 		m_window.addActor(creditsButton);
 		creditsButton.setWidth(220.0f);
 		creditsButton.setPosition(m_window.getWidth() / 2 - creditsButton.getWidth() / 2, helpButton.getY() - creditsButton.getHeight() - 10.0f);
@@ -87,8 +82,7 @@ public class StartScreen implements Screen {
 				Timer.schedule(new Task() {
 					@Override
 					public void run() {
-						dispose();
-						m_game.setScreen(new CreditsScreen(m_game));
+						getOwner().changeScreen(ScreenID.Credits);
 					};
 				}, 0.2f);
 		    }
@@ -96,7 +90,7 @@ public class StartScreen implements Screen {
 		exitButtonPosY = creditsButton.getY();
 		
 		if(allowOptionsScreen) {
-			Button optionsButton = new TextButton(bundle.get("options_button"), m_uiSkin, "default");
+			Button optionsButton = new TextButton(bundle.get("options_button"), uiSkin, "default");
 			m_window.addActor(optionsButton);
 			optionsButton.setWidth(220.0f);
 			optionsButton.setPosition(m_window.getWidth() / 2 - optionsButton.getWidth() / 2, creditsButton.getY() - optionsButton.getHeight() - 10.0f);
@@ -107,8 +101,7 @@ public class StartScreen implements Screen {
 					Timer.schedule(new Task() {
 						@Override
 						public void run() {
-							dispose();
-							m_game.setScreen(new OptionsScreen(m_game, true));
+							getOwner().changeScreen(ScreenID.Options);
 						};
 					}, 0.2f);
 			    }
@@ -116,7 +109,7 @@ public class StartScreen implements Screen {
 			exitButtonPosY = optionsButton.getY();
 		}
 		
-		Button exitButton = new TextButton(bundle.get("exit_button"), m_uiSkin, "default");
+		Button exitButton = new TextButton(bundle.get("exit_button"), uiSkin, "default");
 		m_window.addActor(exitButton);
 		exitButton.setWidth(220.0f);
 		exitButton.setPosition(m_window.getWidth() / 2 - exitButton.getWidth() / 2, exitButtonPosY - exitButton.getHeight() - 10.0f);
@@ -126,14 +119,13 @@ public class StartScreen implements Screen {
 				Timer.schedule(new Task() {
 					@Override
 					public void run() {
-						Gdx.app.exit();
+						m_game.exit();
 					};
 				}, 0.2f);
 		    }
 		});
 		
 		m_stage.addActor(m_window);
-		slideIn();
 	}
 	
 	private void slideIn() {
@@ -151,11 +143,24 @@ public class StartScreen implements Screen {
 	}
 	
 	@Override
-	public void render(float delta) {
-		Gdx.gl.glClearColor(0.0f, 0.45f, 1.0f, 1.0f);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	public void onEnter() {
+		slideIn();
+		Gdx.input.setInputProcessor(m_stage);
+	}
+
+	@Override
+	public void update(float delta) {
 		m_stage.act(delta);
+	}
+	
+	@Override
+	public void render() {
 		m_stage.draw();
+	}
+	
+	@Override
+	public void onExit() {
+		Gdx.input.setInputProcessor(null);
 	}
 
 	@Override
@@ -163,25 +168,8 @@ public class StartScreen implements Screen {
 	}
 
 	@Override
-	public void show() {
-	}
-
-	@Override
-	public void hide() {
-	}
-
-	@Override
-	public void pause() {
-	}
-
-	@Override
-	public void resume() {
-	}
-
-	@Override
 	public void dispose() {
 		m_stage.dispose();
-		m_uiSkin.dispose();
-		m_click.dispose();
-	}
+		m_click = null;
+	}	
 }

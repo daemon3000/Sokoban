@@ -16,34 +16,30 @@ public class PauseMenu {
 	private Array<ActionListener> m_resetLevelListeners;
 	private Array<ActionListener> m_skipLevelListeners;
 	private Array<ActionListener> m_quitGameListeners;
-	private Skin m_uiSkin;
 	private Stage m_stage;
 	private Window m_window;
 	private Sound m_click;
-	private I18NBundle m_stringBundle;
 	private boolean m_isOpen = false;
 	
-	public PauseMenu(Skin uiSkin, Sound clickSound, I18NBundle stringBundle) {
+	public PauseMenu(Skin uiSkin, Sound click, I18NBundle stringBundle) {
 		m_resetLevelListeners = new Array<ActionListener>();
 		m_skipLevelListeners = new Array<ActionListener>();
 		m_quitGameListeners = new Array<ActionListener>();
-		m_uiSkin = uiSkin;
 		m_stage = new Stage();
-		m_click = clickSound;
-		m_stringBundle = stringBundle;
+		m_click = click;
 		
-		createWidgets();
+		createWidgets(uiSkin, stringBundle);
 	}
 	
-	private void createWidgets() {
-		m_window = new Window(m_stringBundle.get("pause_menu_title"), m_uiSkin, "default");
+	private void createWidgets(Skin uiSkin, I18NBundle m_stringBundle) {
+		m_window = new Window(m_stringBundle.get("pause_menu_title"), uiSkin, "default");
 		m_window.setMovable(false);
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(250);
 		m_window.setHeight(300);
 		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
 		
-		Button resumeButton = new TextButton(m_stringBundle.get("resume_button"), m_uiSkin, "default");
+		Button resumeButton = new TextButton(m_stringBundle.get("resume_button"), uiSkin, "default");
 		m_window.addActor(resumeButton);
 		resumeButton.setWidth(220);
 		resumeButton.setPosition(m_window.getWidth() / 2 - resumeButton.getWidth() / 2, m_window.getHeight() / 2 + resumeButton.getHeight() + 5.0f);
@@ -54,39 +50,42 @@ public class PauseMenu {
 		    }
 		});
 		
-		Button resetButton = new TextButton(m_stringBundle.get("reset_button"), m_uiSkin, "default");
+		Button resetButton = new TextButton(m_stringBundle.get("reset_button"), uiSkin, "default");
 		m_window.addActor(resetButton);
 		resetButton.setWidth(220);
 		resetButton.setPosition(m_window.getWidth() / 2 - resetButton.getWidth() / 2, resumeButton.getY() - resetButton.getHeight() - 10.0f);
 		resetButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_click.play();
+				close();
 				for(ActionListener listener: m_resetLevelListeners) {
 					listener.handle();
 				}
 		    }
 		});
 		
-		Button skipButton = new TextButton(m_stringBundle.get("skip_button"), m_uiSkin, "default");
+		Button skipButton = new TextButton(m_stringBundle.get("skip_button"), uiSkin, "default");
 		m_window.addActor(skipButton);
 		skipButton.setWidth(220);
 		skipButton.setPosition(m_window.getWidth() / 2 - skipButton.getWidth() / 2, resetButton.getY() - skipButton.getHeight() - 10.0f);
 		skipButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_click.play();
+				close();
 				for(ActionListener listener: m_skipLevelListeners) {
 					listener.handle();
 				}
 		    }
 		});
 		
-		Button quitButton = new TextButton(m_stringBundle.get("quit_button"), m_uiSkin, "default");
+		Button quitButton = new TextButton(m_stringBundle.get("quit_button"), uiSkin, "default");
 		m_window.addActor(quitButton);
 		quitButton.setWidth(220);
 		quitButton.setPosition(m_window.getWidth() / 2 - quitButton.getWidth() / 2, skipButton.getY() - quitButton.getHeight() - 10.0f);
 		quitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_click.play();
+				close();
 				for(ActionListener listener: m_quitGameListeners) {
 					listener.handle();
 				}
@@ -96,12 +95,14 @@ public class PauseMenu {
 		m_stage.addActor(m_window);
 	}
 	
-	public void render(float delta) {
+	public void update(float delta) {
 		m_stage.act(delta);
-		m_stage.draw();
-		
 		if(Gdx.input.isKeyJustPressed(Keys.ESCAPE))
 			close();
+	}
+	
+	public void render() {
+		m_stage.draw();
 	}
 	
 	public boolean isOpen() {
@@ -159,7 +160,7 @@ public class PauseMenu {
 	}
 	
 	public void dispose() {
-		m_stringBundle = null;
 		m_stage.dispose();
+		m_click = null;
 	}
 }
