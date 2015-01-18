@@ -10,20 +10,19 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.*;
 
 public class SokobanGame extends Game {
-	private PlatformSettings m_platformSettings;
 	private I18NBundle m_stringBundle;
 	private Music m_gameMusic;
 	private HashMap<String, HighScore> m_highScores;
 	
 	public SokobanGame(PlatformSettings platformSettings) {
-		m_platformSettings = platformSettings;
+		super(platformSettings);
 	}
 	
 	@Override
 	public void create() {
 		loadScores();
 		
-		Locale locale = new Locale(m_platformSettings.getLanguage());
+		Locale locale = new Locale(getPlatformSettings().getLanguage());
 		m_stringBundle = I18NBundle.createBundle(Gdx.files.internal("i18n/sokoban"), locale);
 		
 		m_gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/music.ogg"));
@@ -36,8 +35,6 @@ public class SokobanGame extends Game {
 	
 	@Override
 	public void dispose() {
-		
-		m_platformSettings.saveSettings();
 		m_gameMusic.dispose();
 		super.dispose();
 	}
@@ -45,10 +42,6 @@ public class SokobanGame extends Game {
 	public void exit() {
 		saveScores();
 		Gdx.app.exit();
-	}
-	
-	public PlatformSettings getPlatformSettings() {
-		return m_platformSettings;
 	}
 	
 	public I18NBundle getStringBundle() {
@@ -76,7 +69,7 @@ public class SokobanGame extends Game {
 	}
 	
 	private void saveScores() {
-		FileHandle file = m_platformSettings.getHighscoresPath();
+		FileHandle file = getPlatformSettings().getHighscoresPath();
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		try {
 			ObjectOutputStream objStream = new ObjectOutputStream(stream);
@@ -91,7 +84,7 @@ public class SokobanGame extends Game {
 	
 	@SuppressWarnings("unchecked")
 	private void loadScores() {
-		FileHandle file = m_platformSettings.getHighscoresPath();
+		FileHandle file = getPlatformSettings().getHighscoresPath();
 		if(file.exists()) {
 			try {
 				ObjectInputStream stream = new ObjectInputStream(file.read());

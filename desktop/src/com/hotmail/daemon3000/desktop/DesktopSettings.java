@@ -6,13 +6,18 @@ import java.io.IOException;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonValue.ValueType;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.badlogic.gdx.utils.viewport.*;
 import com.hotmail.daemon3000.PlatformSettings;
 
 public class DesktopSettings implements PlatformSettings {
+	private static final int VIRTUAL_WIDTH = 800;
+	private static final int VIRTUAL_HEIGHT = 600;
+	
 	private int m_width;
 	private int m_height;
 	private String m_title;
@@ -22,8 +27,8 @@ public class DesktopSettings implements PlatformSettings {
 	
 	public DesktopSettings() {
 		if(!tryLoadSettings()) {
-			m_width = 800;
-			m_height = 600;
+			m_width = VIRTUAL_WIDTH;
+			m_height = VIRTUAL_HEIGHT;
 			m_title = "Sokoban";
 			m_fullscreen = false;
 			m_language = "en";
@@ -37,8 +42,8 @@ public class DesktopSettings implements PlatformSettings {
 			FileInputStream stream = new FileInputStream("settings.json");
 			JsonReader reader = new JsonReader();
 			JsonValue root = reader.parse(stream);
-			m_width = root.getInt("width", 800);
-			m_height = root.getInt("height", 600);
+			m_width = root.getInt("width", VIRTUAL_WIDTH);
+			m_height = root.getInt("height", VIRTUAL_HEIGHT);
 			m_title = root.getString("title", "Sokoban");
 			m_fullscreen = root.getBoolean("fullscreen", false);
 			m_language = root.getString("language", "en");
@@ -66,22 +71,21 @@ public class DesktopSettings implements PlatformSettings {
 	}
 	
 	@Override
-	public int getWindowWidth() {
-		return m_width;
+	public Viewport createViewport() {
+//		return new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+		return new ScreenViewport();
 	}
 	
-	public int getWindowHeight() {
-		return m_height;
+	
+	@Override
+	public Vector2 getScreenSize() {
+		return new Vector2(m_width, m_height);
 	}
 	
 	@Override
-	public int getVirtualWidth() {
-		return 800;
-	}
-	
-	@Override
-	public int getVirtualHeight() {
-		return 600;
+	public Vector2 getVirtualScreenSize() {
+//		return new Vector2(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+		return new Vector2(m_width, m_height);
 	}
 	
 	@Override

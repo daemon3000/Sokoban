@@ -2,6 +2,7 @@ package com.hotmail.daemon3000;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -14,11 +15,13 @@ public class HelpScreen extends Screen {
 	private Stage m_stage;
 	private Window m_window;
 	private Sound m_click;
+	private Vector2 m_screenSize;
 	
 	public HelpScreen(ScreenManager owner, SokobanGame game,  Skin uiSkin, Sound click) {
 		super(ScreenID.Help, owner);
-		m_stage = new Stage();
 		m_click = click;
+		m_stage = new Stage(game.getPlatformSettings().createViewport());
+		m_screenSize = game.getPlatformSettings().getVirtualScreenSize();
 		
 		createWidgets(game, uiSkin);
 	}
@@ -31,7 +34,7 @@ public class HelpScreen extends Screen {
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(260);
 		m_window.setHeight(260);
-		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		m_window.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		
 		Label moveLabel = new Label(bundle.get("move_help"), uiSkin, "default");
 		m_window.addActor(moveLabel);
@@ -63,14 +66,15 @@ public class HelpScreen extends Screen {
 	
 	private void slideIn() {
 		MoveToAction moveAction = new MoveToAction();
-		moveAction.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		moveAction.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 		moveAction.setDuration(0.4f);
+		m_window.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		m_window.addAction(moveAction);
 	}
 	
 	private void slideOut() {
 		MoveToAction moveAction = new MoveToAction();
-		moveAction.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		moveAction.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		moveAction.setDuration(0.2f);
 		m_window.addAction(moveAction);
 	}
@@ -97,7 +101,10 @@ public class HelpScreen extends Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(Vector2 screenSize, Vector2 virtualScreenSize) {
+		m_stage.getViewport().update((int)screenSize.x, (int)screenSize.y, true);
+		m_screenSize = virtualScreenSize;
+		m_window.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 	}
 
 	@Override

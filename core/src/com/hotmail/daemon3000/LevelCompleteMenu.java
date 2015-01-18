@@ -2,6 +2,7 @@ package com.hotmail.daemon3000;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
@@ -19,12 +20,14 @@ public class LevelCompleteMenu {
 	private Window m_window;
 	private Sound m_click;
 	private I18NBundle m_stringBundle;
+	private Vector2 m_screenSize;
 	private boolean m_isOpen = false;
 	
-	public LevelCompleteMenu(Skin uiSkin, Sound click, I18NBundle stringBundle) {
+	public LevelCompleteMenu(SokobanGame game, Skin uiSkin, Sound click, I18NBundle stringBundle) {
 		m_stage = new Stage();
 		m_click = click;
 		m_stringBundle = stringBundle;
+		m_screenSize = game.getPlatformSettings().getVirtualScreenSize();
 		m_continueGameListeners = new Array<ActionListener>();
 		m_quitGameListeners = new Array<ActionListener>();
 		
@@ -37,7 +40,7 @@ public class LevelCompleteMenu {
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(250);
 		m_window.setHeight(200);
-		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		m_window.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		
 		Button continueButton = new TextButton(m_stringBundle.get("continue_button"), uiSkin, "default");
 		m_window.addActor(continueButton);
@@ -124,14 +127,14 @@ public class LevelCompleteMenu {
 	
 	private void slideIn() {
 		MoveToAction moveAction = new MoveToAction();
-		moveAction.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		moveAction.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 		moveAction.setDuration(0.3f);
 		m_window.addAction(moveAction);
 	}
 	
 	private void slideOut() {
 		MoveToAction moveAction = new MoveToAction();
-		moveAction.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		moveAction.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		moveAction.setDuration(0.2f);
 		m_window.addAction(moveAction);
 	}

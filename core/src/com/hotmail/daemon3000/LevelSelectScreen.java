@@ -4,6 +4,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -22,16 +23,18 @@ public class LevelSelectScreen extends Screen {
 	private Sound m_click;
 	private Array<LevelPackData> m_levelPacks;
 	private SokobanGame m_game;
-	I18NBundle m_stringBundle;
+	private I18NBundle m_stringBundle;
+	private Vector2 m_screenSize;
 	private int m_currentLevelPack = 0;
 	
 	public LevelSelectScreen(ScreenManager owner, SokobanGame game, Skin uiSkin, Sound click) {
 		super(ScreenID.LevelSelect, owner);
-		m_stage = new Stage();
+		m_stage = new Stage(game.getPlatformSettings().createViewport());
 		m_click = click;
 		m_levelPacks = new Array<LevelPackData>();
 		m_game = game;
-		m_stringBundle = m_game.getStringBundle();
+		m_stringBundle = game.getStringBundle();
+		m_screenSize = game.getPlatformSettings().getVirtualScreenSize();
 		
 		loadLevelPackList(Gdx.files.internal("levels/index.json"), true);
 		if(m_game.getPlatformSettings().allowsAddonLevels()) {
@@ -68,7 +71,7 @@ public class LevelSelectScreen extends Screen {
 		m_window.setKeepWithinStage(false);
 		m_window.setWidth(300);
 		m_window.setHeight(325);
-		m_window.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		m_window.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		
 		String packName = m_levelPacks.size > 0 ? m_levelPacks.get(0).name : m_stringBundle.get("unknown");
 		int packSize = m_levelPacks.size > 0 ? m_levelPacks.get(0).levelCount : 0;
@@ -222,14 +225,15 @@ public class LevelSelectScreen extends Screen {
 	
 	private void slideIn() {
 		MoveToAction moveAction = new MoveToAction();
-		moveAction.setPosition(Gdx.graphics.getWidth() / 2 - m_window.getWidth() / 2, Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		moveAction.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 		moveAction.setDuration(0.4f);
+		m_window.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		m_window.addAction(moveAction);
 	}
 	
 	private void slideOut() {
 		MoveToAction moveAction = new MoveToAction();
-		moveAction.setPosition(Gdx.graphics.getWidth() + m_window.getWidth(), Gdx.graphics.getHeight() / 2 - m_window.getHeight() / 2);
+		moveAction.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		moveAction.setDuration(0.2f);
 		m_window.addAction(moveAction);
 	}
@@ -256,7 +260,10 @@ public class LevelSelectScreen extends Screen {
 	}
 
 	@Override
-	public void resize(int width, int height) {
+	public void resize(Vector2 screenSize, Vector2 virtualScreenSize) {
+		m_stage.getViewport().update((int)screenSize.x, (int)screenSize.y, true);
+		m_screenSize = virtualScreenSize;
+		m_window.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 	}
 
 	@Override

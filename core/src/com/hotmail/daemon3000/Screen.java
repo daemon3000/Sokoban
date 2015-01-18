@@ -1,5 +1,7 @@
 package com.hotmail.daemon3000;
 
+import com.badlogic.gdx.math.Vector2;
+
 public abstract class Screen {
 	private ScreenManager m_owner;
 	private ScreenID m_id;
@@ -21,6 +23,6 @@ public abstract class Screen {
 	public abstract void update(float delta);
 	public abstract void render();
 	public abstract void onExit();
-	public abstract void resize(int width, int height);
+	public abstract void resize(Vector2 screenSize, Vector2 virtualScreenSize);
 	public abstract void dispose();
 }

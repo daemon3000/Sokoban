@@ -3,6 +3,7 @@ package com.hotmail.daemon3000;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class StartScene implements Scene {
@@ -13,6 +14,7 @@ public class StartScene implements Scene {
 	public StartScene(SokobanGame game) {
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
+		
 		m_screenManager = new ScreenManager();
 		m_screenManager.addScreen(new StartScreen(m_screenManager, game, m_uiSkin, m_click));
 		m_screenManager.addScreen(new LevelSelectScreen(m_screenManager, game, m_uiSkin, m_click));
@@ -36,8 +38,8 @@ public class StartScene implements Scene {
 	}
 
 	@Override
-	public void resize(int width, int height) {
-		m_screenManager.resize(width, height);
+	public void resize(Vector2 screenSize, Vector2 virtualScreenSize) {
+		m_screenManager.resize(screenSize, virtualScreenSize);
 	}
 
 	@Override

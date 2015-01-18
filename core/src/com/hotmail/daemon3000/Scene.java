@@ -1,5 +1,7 @@
 package com.hotmail.daemon3000;
 
+import com.badlogic.gdx.math.Vector2;
+
 public interface Scene {
 	/** Called when the screen should update itself.
 	 * @param delta The time in seconds since the last render. */
@@ -10,7 +12,7 @@ public interface Scene {
 	public void render();
 
 	/** @see ApplicationListener#resize(int, int) */
-	public void resize(int width, int height);
+	public void resize(Vector2 screenSize, Vector2 virtualScreenSize);
 
 	/** @see ApplicationListener#pause() */
 	public void pause();

@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.badlogic.gdx.math.Vector2;
+
 public class ScreenManager {
 	private HashMap<ScreenID, Screen> m_screens;
 	private Screen m_currentScreen;
@@ -44,12 +46,12 @@ public class ScreenManager {
 			m_currentScreen.render();
 	}
 	
-	public void resize(int width, int height) {
+	public void resize(Vector2 screenSize, Vector2 virtualScreenSize) {
 		Iterator<?> iter = m_screens.entrySet().iterator();
 		while(iter.hasNext()) {
 			@SuppressWarnings("unchecked")
 			Map.Entry<String, Screen> entry = (Map.Entry<String, Screen>)iter.next();
-			entry.getValue().resize(width, height);
+			entry.getValue().resize(screenSize, virtualScreenSize);
 		}
 	}
 	

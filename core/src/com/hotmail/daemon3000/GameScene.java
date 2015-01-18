@@ -7,6 +7,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
@@ -33,8 +34,8 @@ public class GameScene implements Scene {
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
 		m_statusPanel = new StatusPanel(m_uiSkin, m_game.getStringBundle());
-		m_pauseMenu = new PauseMenu(m_uiSkin, m_click, m_game.getStringBundle());
-		m_levelCompleteMenu = new LevelCompleteMenu(m_uiSkin, m_click, m_game.getStringBundle());
+		m_pauseMenu = new PauseMenu(game, m_uiSkin, m_click, m_game.getStringBundle());
+		m_levelCompleteMenu = new LevelCompleteMenu(game, m_uiSkin, m_click, m_game.getStringBundle());
 		m_levelPack = new LevelPack(levelPackID, levelPackFile, m_tileSet);
 		
 		m_pauseMenu.addResetLevelListener(new ActionListener() {
@@ -190,7 +191,7 @@ public class GameScene implements Scene {
 	}
 	
 	@Override
-	public void resize(int width, int height) {
+	public void resize(Vector2 screenSize, Vector2 virtualScreenSize) {
 	}
 
 	@Override
