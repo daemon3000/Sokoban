@@ -1,6 +1,7 @@
 package com.hotmail.daemon3000;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -11,6 +12,7 @@ public interface PlatformSettings {
 	FileHandle getAddonLevelPath();
 	FileHandle getHighscoresPath();
 	Viewport createViewport();
+	Viewport createViewport(Camera camera);
 	Vector2 getScreenSize();
 	Vector2 getVirtualScreenSize();
 	String getTitle();

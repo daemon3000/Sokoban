@@ -18,7 +18,7 @@ public class CreditsScreen extends Screen {
 	private Vector2 m_screenSize;
 	
 	public CreditsScreen(ScreenManager owner, SokobanGame game,  Skin uiSkin, Sound click) {
-		super(ScreenID.Credits, owner);
+		super(ScreenID.Credits, owner, false, false);
 		m_click = click;
 		m_stage = new Stage(game.getPlatformSettings().createViewport());
 		m_screenSize = game.getPlatformSettings().getVirtualScreenSize();
@@ -88,6 +88,10 @@ public class CreditsScreen extends Screen {
 		slideIn();
 		Gdx.input.setInputProcessor(m_stage);
 	}
+	
+	@Override
+	public void onFocusEnter() {
+	}
 
 	@Override
 	public void update(float delta) {
@@ -97,6 +101,10 @@ public class CreditsScreen extends Screen {
 	@Override
 	public void render() {
 		m_stage.draw();
+	}
+	
+	@Override
+	public void onFocusExit() {
 	}
 	
 	@Override

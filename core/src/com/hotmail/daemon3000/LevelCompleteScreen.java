@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
-public class LevelCompleteMenu {
+public class LevelCompleteScreen extends Screen {
 	private Array<ActionListener> m_continueGameListeners;
 	private Array<ActionListener> m_quitGameListeners;
 	private Stage m_stage;
@@ -21,12 +21,12 @@ public class LevelCompleteMenu {
 	private Sound m_click;
 	private I18NBundle m_stringBundle;
 	private Vector2 m_screenSize;
-	private boolean m_isOpen = false;
 	
-	public LevelCompleteMenu(SokobanGame game, Skin uiSkin, Sound click, I18NBundle stringBundle) {
-		m_stage = new Stage();
+	public LevelCompleteScreen(ScreenManager owner, SokobanGame game, Skin uiSkin, Sound click) {
+		super(ScreenID.LevelComplete, owner, false, true);
+		m_stage = new Stage(game.getPlatformSettings().createViewport());
 		m_click = click;
-		m_stringBundle = stringBundle;
+		m_stringBundle = game.getStringBundle();
 		m_screenSize = game.getPlatformSettings().getVirtualScreenSize();
 		m_continueGameListeners = new Array<ActionListener>();
 		m_quitGameListeners = new Array<ActionListener>();
@@ -49,10 +49,16 @@ public class LevelCompleteMenu {
 		continueButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_click.play();
-				for(ActionListener listener: m_continueGameListeners) {
-					close();
-					listener.handle();
-				}
+				slideOut();
+				Timer.schedule(new Task() {
+					@Override
+					public void run() {
+						for(ActionListener listener: m_continueGameListeners) {
+							listener.handle();
+						}
+						getOwner().popScreen();
+					}
+				}, 0.2f);
 		    }
 		});
 		
@@ -63,49 +69,56 @@ public class LevelCompleteMenu {
 		quitButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_click.play();
-				for(ActionListener listener: m_quitGameListeners) {
-					listener.handle();
-				}
+				slideOut();
+				Timer.schedule(new Task() {
+					@Override
+					public void run() {
+						for(ActionListener listener: m_quitGameListeners) {
+							listener.handle();
+						}
+						getOwner().popScreen();
+					}
+				}, 0.2f);
 		    }
 		});
 		
 		m_stage.addActor(m_window);
 	}
 	
+	@Override
+	public void onEnter() {
+		slideIn();
+		Gdx.input.setInputProcessor(m_stage);
+	}
+
+	@Override
+	public void onFocusEnter() {
+	}
+	
+	@Override
 	public void update(float delta) {
 		m_stage.act(delta);
 	}
 	
+	@Override
 	public void render() {
 		m_stage.draw();
 	}
 	
-	public boolean isOpen() {
-		return m_isOpen;
+	@Override
+	public void onFocusExit() {
 	}
 	
-	public void open() {
-		slideIn();
-		m_isOpen = true;
-		m_window.setVisible(true);
-		Timer.schedule(new Task() {
-			@Override
-			public void run() {
-				Gdx.input.setInputProcessor(m_stage);
-			}
-		}, 0.4f);
+	@Override
+	public void onExit() {
+		Gdx.input.setInputProcessor(null);
 	}
-	
-	public void close() {
-		slideOut();
-		Timer.schedule(new Task() {
-			@Override
-			public void run() {
-				m_isOpen = false;
-				m_window.setVisible(false);
-				Gdx.input.setInputProcessor(null);
-			}
-		}, 0.2f);
+
+	@Override
+	public void resize(Vector2 screenSize, Vector2 virtualScreenSize) {
+		m_stage.getViewport().update((int)screenSize.x, (int)screenSize.y, true);
+		m_screenSize = virtualScreenSize;
+		m_window.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 	}
 	
 	public void setNewRecord(boolean record) {
@@ -129,6 +142,7 @@ public class LevelCompleteMenu {
 		MoveToAction moveAction = new MoveToAction();
 		moveAction.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 		moveAction.setDuration(0.3f);
+		m_window.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		m_window.addAction(moveAction);
 	}
 	
@@ -139,6 +153,7 @@ public class LevelCompleteMenu {
 		m_window.addAction(moveAction);
 	}
 	
+	@Override
 	public void dispose() {
 		m_stage.dispose();
 		m_click = null;

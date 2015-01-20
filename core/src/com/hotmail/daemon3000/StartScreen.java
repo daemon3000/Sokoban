@@ -19,7 +19,7 @@ public class StartScreen extends Screen {
 	private Vector2 m_screenSize;
 	
 	public StartScreen(ScreenManager owner, SokobanGame game, Skin uiSkin, Sound click) {
-		super(ScreenID.Start, owner);
+		super(ScreenID.Start, owner, false, false);
 		m_game = game;
 		m_click = click;
 		m_stage = new Stage(game.getPlatformSettings().createViewport());
@@ -131,6 +131,42 @@ public class StartScreen extends Screen {
 		m_stage.addActor(m_window);
 	}
 	
+	@Override
+	public void onEnter() {
+		slideIn();
+		Gdx.input.setInputProcessor(m_stage);
+	}
+
+	@Override
+	public void onFocusEnter() {
+	}
+	
+	@Override
+	public void update(float delta) {
+		m_stage.act(delta);
+	}
+	
+	@Override
+	public void render() {
+		m_stage.draw();
+	}
+	
+	@Override
+	public void onFocusExit() {
+	}
+	
+	@Override
+	public void onExit() {
+		Gdx.input.setInputProcessor(null);
+	}
+
+	@Override
+	public void resize(Vector2 screenSize, Vector2 virtualScreenSize) {
+		m_stage.getViewport().update((int)screenSize.x, (int)screenSize.y, true);
+		m_screenSize = virtualScreenSize;
+		m_window.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
+	}
+	
 	private void slideIn() {
 		MoveToAction moveAction = new MoveToAction();
 		moveAction.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
@@ -144,34 +180,6 @@ public class StartScreen extends Screen {
 		moveAction.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
 		moveAction.setDuration(0.2f);
 		m_window.addAction(moveAction);
-	}
-	
-	@Override
-	public void onEnter() {
-		slideIn();
-		Gdx.input.setInputProcessor(m_stage);
-	}
-
-	@Override
-	public void update(float delta) {
-		m_stage.act(delta);
-	}
-	
-	@Override
-	public void render() {
-		m_stage.draw();
-	}
-	
-	@Override
-	public void onExit() {
-		Gdx.input.setInputProcessor(null);
-	}
-
-	@Override
-	public void resize(Vector2 screenSize, Vector2 virtualScreenSize) {
-		m_stage.getViewport().update((int)screenSize.x, (int)screenSize.y, true);
-		m_screenSize = virtualScreenSize;
-		m_window.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 	}
 
 	@Override

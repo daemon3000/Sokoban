@@ -28,7 +28,7 @@ public class LevelSelectScreen extends Screen {
 	private int m_currentLevelPack = 0;
 	
 	public LevelSelectScreen(ScreenManager owner, SokobanGame game, Skin uiSkin, Sound click) {
-		super(ScreenID.LevelSelect, owner);
+		super(ScreenID.LevelSelect, owner, false, false);
 		m_stage = new Stage(game.getPlatformSettings().createViewport());
 		m_click = click;
 		m_levelPacks = new Array<LevelPackData>();
@@ -245,6 +245,10 @@ public class LevelSelectScreen extends Screen {
 	}
 
 	@Override
+	public void onFocusEnter() {
+	}
+	
+	@Override
 	public void update(float delta) {
 		m_stage.act(delta);
 	}
@@ -252,6 +256,10 @@ public class LevelSelectScreen extends Screen {
 	@Override
 	public void render() {
 		m_stage.draw();
+	}
+	
+	@Override
+	public void onFocusExit() {
 	}
 	
 	@Override

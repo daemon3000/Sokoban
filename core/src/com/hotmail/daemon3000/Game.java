@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public abstract class Game implements ApplicationListener {
 	private Scene m_currentScene;
+	private Scene m_sceneToLoad;
 	private PlatformSettings m_platformSettings;
 	
 	public Game(PlatformSettings platformSettings) {
@@ -26,6 +27,11 @@ public abstract class Game implements ApplicationListener {
 
 	@Override
 	public void render() {
+		if(m_sceneToLoad != null) {
+			internalSetScene(m_sceneToLoad);
+			m_sceneToLoad = null;
+		}
+		
 		if(m_currentScene != null) {
 			float delta = Gdx.graphics.getDeltaTime();
 			m_currentScene.update(delta);
@@ -47,11 +53,16 @@ public abstract class Game implements ApplicationListener {
 		m_platformSettings.saveSettings();
 	}
 	
-	public void setScene(Scene screen) {
+	public void setScene(Scene scene) {
+		m_sceneToLoad = scene;
+	}
+	
+	private void internalSetScene(Scene scene) {
 		if(m_currentScene != null) { 
 			m_currentScene.dispose();
 		}
-		m_currentScene = screen;
+		m_currentScene = scene;
+		m_currentScene.onLoad();
 	}
 
 	public Scene getScene() {

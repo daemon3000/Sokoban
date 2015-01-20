@@ -1,6 +1,6 @@
 package com.hotmail.daemon3000;
 
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.*;
@@ -13,7 +13,7 @@ public class Level {
 	}
 	
 	private SpriteBatch m_spriteBatch;
-	private OrthographicCamera m_camera;
+	private Camera m_camera;
 	private TextureRegion[] m_tileRegions;
 	private Pool<UndoStep> m_undoPool;
 	private Array<UndoStep> m_undoStack;
@@ -30,7 +30,7 @@ public class Level {
 	private boolean m_isInitialized = false;
 	private PlayerDirection m_playerDir;
 	
-	public Level(SpriteBatch batch, OrthographicCamera camera, TextureRegion[] tileRegions, int tileCapacity) {
+	public Level(SpriteBatch batch, Camera camera, TextureRegion[] tileRegions, int tileCapacity) {
 		m_spriteBatch = batch;
 		m_camera = camera;
 		m_tileRegions = tileRegions;
@@ -45,7 +45,7 @@ public class Level {
 		m_tiles = new byte[tileCapacity];
 	}
 	
-	public Level(SpriteBatch batch, OrthographicCamera camera, TextureRegion[] tileRegions, int tileCapacity, LevelData levelData) {
+	public Level(SpriteBatch batch, Camera camera, TextureRegion[] tileRegions, int tileCapacity, LevelData levelData) {
 		this(batch, camera, tileRegions, tileCapacity);
 		initialize(levelData);
 	}

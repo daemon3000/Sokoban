@@ -1,11 +1,11 @@
 package com.hotmail.daemon3000;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.I18NBundle;
 
-public class StatusPanel {
+public class GameplayStatusScreen extends Screen {
 	private Skin m_uiSkin;
 	private Stage m_stage;
 	private Window m_window;
@@ -15,12 +15,16 @@ public class StatusPanel {
 	private Label m_elapsedTimeLabel;
 	private Label m_bestTimeLabel;
 	private I18NBundle m_stringBundle;
+	private Vector2 m_screenSize;
 	private int m_lastElapsedTime = 0;
+	private int m_lastMoveCount = 0;
 
-	public StatusPanel(Skin uiSkin, I18NBundle stringBundle) {
+	public GameplayStatusScreen(ScreenManager owner, SokobanGame game, Skin uiSkin) {
+		super(ScreenID.GameplayStatus, owner, true, true);
 		m_uiSkin = uiSkin;
 		m_stage = new Stage();
-		m_stringBundle = stringBundle;
+		m_stringBundle = game.getStringBundle();
+		m_screenSize = game.getPlatformSettings().getVirtualScreenSize();
 
 		createWidgets();
 	}
@@ -28,9 +32,9 @@ public class StatusPanel {
 	private void createWidgets() {
 		m_window = new Window("", m_uiSkin, "panel");
 		m_window.setMovable(false);
-		m_window.setWidth(Gdx.graphics.getWidth());
+		m_window.setWidth(m_screenSize.x);
 		m_window.setHeight(50);
-		m_window.setPosition(0.0f, Gdx.graphics.getHeight() - 30);
+		m_window.setPosition(0.0f, m_screenSize.y - 30);
 
 		m_levelIndexLabel = new Label(m_stringBundle.format("level_index_label", 0, 0), m_uiSkin, "default");
 		m_window.addActor(m_levelIndexLabel);
@@ -59,8 +63,38 @@ public class StatusPanel {
 		m_stage.addActor(m_window);
 	}
 
+	@Override
+	public void onEnter() {
+	}
+
+	@Override
+	public void onFocusEnter() {
+	}
+
+	@Override
+	public void update(float delta) {
+		m_stage.act(delta);
+	}
+	
+	@Override
 	public void render() {
 		m_stage.draw();
+	}
+	
+	@Override
+	public void onFocusExit() {
+	}
+
+	@Override
+	public void onExit() {
+	}
+
+	@Override
+	public void resize(Vector2 screenSize, Vector2 virtualScreenSize) {
+		m_stage.getViewport().update((int)screenSize.x, (int)screenSize.y, true);
+		m_screenSize = virtualScreenSize;
+		m_window.setSize(m_screenSize.x, m_window.getHeight());
+		m_window.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 	}
 
 	public void setLevelIndex(int levelIndex, int levelCount) {
@@ -68,9 +102,12 @@ public class StatusPanel {
 	}
 
 	public void setMoveCount(int moveCount) {
-		m_moveCountLabel.setText(m_stringBundle.format("move_count_label", moveCount));
-		m_moveCountLabel.pack();
-		m_moveCountLabel.setX(m_window.getWidth() / 2 - m_moveCountLabel.getWidth() / 2);
+		if(moveCount != m_lastMoveCount) {
+			m_lastMoveCount = moveCount;
+			m_moveCountLabel.setText(m_stringBundle.format("move_count_label", moveCount));
+			m_moveCountLabel.pack();
+			m_moveCountLabel.setX(m_window.getWidth() / 2 - m_moveCountLabel.getWidth() / 2);
+		}
 	}
 	
 	public void setBestMoves(int moveCount) {
@@ -114,8 +151,10 @@ public class StatusPanel {
 		m_bestTimeLabel.setX(m_window.getWidth() - m_bestTimeLabel.getWidth() - 10.0f);
 		
 		m_lastElapsedTime = 0;
+		m_lastMoveCount = 0;
 	}
 
+	@Override
 	public void dispose() {
 		m_stringBundle = null;
 		m_window = null;

@@ -30,7 +30,7 @@ public class OptionsScreen extends Screen {
 	private boolean m_lastFullscreen;
 	
 	public OptionsScreen(ScreenManager owner, SokobanGame game,  Skin uiSkin, Sound click) {
-		super(ScreenID.Options, owner);
+		super(ScreenID.Options, owner, false, false);
 		m_game = game;
 		m_stage = new Stage(game.getPlatformSettings().createViewport());
 		m_screenSize = game.getPlatformSettings().getVirtualScreenSize();
@@ -225,6 +225,10 @@ public class OptionsScreen extends Screen {
 		slideIn();
 		Gdx.input.setInputProcessor(m_stage);
 	}
+	
+	@Override
+	public void onFocusEnter() {
+	}
 
 	@Override
 	public void update(float delta) {
@@ -234,6 +238,10 @@ public class OptionsScreen extends Screen {
 	@Override
 	public void render() {
 		m_stage.draw();
+	}
+	
+	@Override
+	public void onFocusExit() {
 	}
 
 	@Override

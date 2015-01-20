@@ -10,17 +10,23 @@ public class StartScene implements Scene {
 	private ScreenManager m_screenManager;
 	private Skin m_uiSkin;
 	private Sound m_click;
+	private SokobanGame m_game;
 	
 	public StartScene(SokobanGame game) {
+		m_game = game;
+	}
+	
+	@Override
+	public void onLoad() {
 		m_uiSkin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 		m_click = Gdx.audio.newSound(Gdx.files.internal("audio/click.ogg"));
 		
 		m_screenManager = new ScreenManager();
-		m_screenManager.addScreen(new StartScreen(m_screenManager, game, m_uiSkin, m_click));
-		m_screenManager.addScreen(new LevelSelectScreen(m_screenManager, game, m_uiSkin, m_click));
-		m_screenManager.addScreen(new HelpScreen(m_screenManager, game, m_uiSkin, m_click));
-		m_screenManager.addScreen(new CreditsScreen(m_screenManager, game, m_uiSkin, m_click));
-		m_screenManager.addScreen(new OptionsScreen(m_screenManager, game, m_uiSkin, m_click));
+		m_screenManager.addScreen(new StartScreen(m_screenManager, m_game, m_uiSkin, m_click));
+		m_screenManager.addScreen(new LevelSelectScreen(m_screenManager, m_game, m_uiSkin, m_click));
+		m_screenManager.addScreen(new HelpScreen(m_screenManager, m_game, m_uiSkin, m_click));
+		m_screenManager.addScreen(new CreditsScreen(m_screenManager, m_game, m_uiSkin, m_click));
+		m_screenManager.addScreen(new OptionsScreen(m_screenManager, m_game, m_uiSkin, m_click));
 		
 		m_screenManager.changeScreen(ScreenID.Start);
 	}

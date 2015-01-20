@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
@@ -76,6 +77,14 @@ public class DesktopSettings implements PlatformSettings {
 		return new ScreenViewport();
 	}
 	
+	@Override
+	public Viewport createViewport(Camera camera) {
+//		FitViewport viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
+		ScreenViewport viewport = new ScreenViewport(camera);
+		viewport.update(m_width, m_height, true);
+		
+		return viewport;
+	}
 	
 	@Override
 	public Vector2 getScreenSize() {

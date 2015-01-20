@@ -3,7 +3,6 @@ package com.hotmail.daemon3000;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,7 +13,7 @@ public class LevelPack {
 	private final int MIN_LEVEL_SIZE = 3;
 	
 	private SpriteBatch m_spriteBatch;
-	private OrthographicCamera m_camera;
+	private Camera m_camera;
 	private TextureRegion[] m_tileSet;
 	private Array<LevelData> m_levelData;
 	private Level m_loadedLevel;
@@ -22,13 +21,11 @@ public class LevelPack {
 	private int m_maxLevelSize;
 	private boolean m_isDisposed = false;
 	
-	public LevelPack(String id, FileHandle fileHandle, TextureRegion[] tileSet) {
+	public LevelPack(String id, FileHandle fileHandle, TextureRegion[] tileSet, SpriteBatch spriteBatch, Camera camera) {
 		m_id = id;
 		m_tileSet = tileSet;
-		m_spriteBatch = new SpriteBatch();
-		m_camera = new OrthographicCamera();
-		m_camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		m_camera.zoom = 2.0f;
+		m_spriteBatch = spriteBatch;
+		m_camera = camera;
 		parse(fileHandle);
 	}
 	
@@ -168,7 +165,8 @@ public class LevelPack {
 	public void dispose() {
 		if(!m_isDisposed) {
 			m_loadedLevel.dispose();
-			m_spriteBatch.dispose();;
+			m_spriteBatch = null;
+			m_camera = null;
 			m_tileSet = null;
 			
 			m_levelData.clear();
