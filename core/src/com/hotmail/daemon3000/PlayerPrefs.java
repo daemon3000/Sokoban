@@ -77,6 +77,10 @@ public class PlayerPrefs {
 		}
 		
 		Json json = new Json();
+		json.addClassTag("string", String.class);
+		json.addClassTag("int", Integer.class);
+		json.addClassTag("float", Float.class);
+		json.addClassTag("boolean", Boolean.class);
 		m_data = json.fromJson(Data.class, fileHandle);
 		if(m_data == null)
 			m_data = new Data();
@@ -84,8 +88,13 @@ public class PlayerPrefs {
 	
 	public void load(String file) {
 		try {
-			FileInputStream stream = new FileInputStream(file);
 			Json json = new Json();
+			json.addClassTag("string", String.class);
+			json.addClassTag("int", Integer.class);
+			json.addClassTag("float", Float.class);
+			json.addClassTag("boolean", Boolean.class);
+			
+			FileInputStream stream = new FileInputStream(file);
 			m_data = json.fromJson(Data.class, stream);
 			if(m_data == null)
 				m_data = new Data();
@@ -101,7 +110,11 @@ public class PlayerPrefs {
 	
 	public void save(FileHandle fileHandle) {
 		Json json = new Json();
-		json.setOutputType(OutputType.json);
+		json.addClassTag("string", String.class);
+		json.addClassTag("int", Integer.class);
+		json.addClassTag("float", Float.class);
+		json.addClassTag("boolean", Boolean.class);
+		json.setOutputType(OutputType.javascript);
 		fileHandle.writeString(json.prettyPrint(m_data), false);
 	}
 	
@@ -109,7 +122,11 @@ public class PlayerPrefs {
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
 			Json json = new Json();
-			json.setOutputType(OutputType.json);
+			json.addClassTag("string", String.class);
+			json.addClassTag("int", Integer.class);
+			json.addClassTag("float", Float.class);
+			json.addClassTag("boolean", Boolean.class);
+			json.setOutputType(OutputType.javascript);
 			stream.write(json.prettyPrint(m_data).getBytes(Charset.forName("UTF-8")));
 			stream.close();
 		} 

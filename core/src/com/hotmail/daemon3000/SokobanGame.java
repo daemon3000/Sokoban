@@ -25,7 +25,7 @@ public class SokobanGame extends Game {
 		m_stringBundle = I18NBundle.createBundle(Gdx.files.internal("i18n/sokoban"), locale);
 		
 		m_gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/music.ogg"));
-		m_gameMusic.setVolume(0.4f);
+		m_gameMusic.setVolume(playerPrefs.getFloat("music_volume", 0.4f));
 		m_gameMusic.setLooping(true);
 		
 		boolean playMusic = playerPrefs.getBoolean("music_on", true);
