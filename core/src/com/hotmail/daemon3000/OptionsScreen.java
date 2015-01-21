@@ -22,12 +22,14 @@ public class OptionsScreen extends Screen {
 	private Window m_window;
 	private Label m_resolutionText;
 	private CheckBox m_fullscreen;
+	private CheckBox m_musicToggle;
 	private Sound m_click;
 	private DisplayMode m_displayModes[];
 	private Vector2 m_screenSize;
 	private int m_currentResolution;
 	private int m_lastResolution;
 	private boolean m_lastFullscreen;
+	private boolean m_lastMusicToggleState;
 	
 	public OptionsScreen(ScreenManager owner, SokobanGame game,  Skin uiSkin, Sound click) {
 		super(ScreenID.Options, owner, false, false);
@@ -37,22 +39,24 @@ public class OptionsScreen extends Screen {
 		m_click = click;
 		m_displayModes = Gdx.graphics.getDisplayModes().clone();
 		m_lastFullscreen = Gdx.graphics.isFullscreen();
+		m_lastMusicToggleState = game.isMusicPlaying();
 		sortDisplayModes();
 		
-		int screenWidth = Gdx.graphics.getWidth();
-		int screenHeight = Gdx.graphics.getHeight();
+		findCurrentResolution();
+		createWidgets(uiSkin);
+	}
+	
+	private void findCurrentResolution() {
+		Vector2 screenSize = m_game.getPlatformSettings().getScreenSize();
 		m_currentResolution = 0;
 		m_lastResolution = 0;
 		for(int i = 0; i < m_displayModes.length; i++) {
-			if(m_displayModes[i].width == screenWidth && m_displayModes[i].height == screenHeight) {
+			if(m_displayModes[i].width == (int)screenSize.x && m_displayModes[i].height == (int)screenSize.y) {
 				m_currentResolution = i;
 				m_lastResolution = i;
 				break;
 			}
 		}
-		
-		createWidgets(uiSkin);
-		Gdx.input.setInputProcessor(m_stage);
 	}
 	
 	private void createWidgets(Skin uiSkin) {
@@ -89,7 +93,7 @@ public class OptionsScreen extends Screen {
 		applyButton.addListener(new ClickListener() {
 			public void clicked(InputEvent event, float x, float y) {
 				m_click.play();
-				applyGraphicsChanges();
+				applyChanges();
 		    }
 		});
 		
@@ -137,6 +141,10 @@ public class OptionsScreen extends Screen {
 		m_fullscreen = new CheckBox("", uiSkin, "default");
 		m_fullscreen.setChecked(m_lastFullscreen);
 		
+		//	MUSIC
+		m_musicToggle = new CheckBox("", uiSkin, "default");
+		m_musicToggle.setChecked(m_lastMusicToggleState);
+		
 		//	LAYOUT TABLE
 		Table layoutTable = new Table();
 		m_window.addActor(layoutTable);
@@ -149,6 +157,9 @@ public class OptionsScreen extends Screen {
 		layoutTable.row();
 		layoutTable.add(new Label(bundle.get("fullscreen_label"), uiSkin, "default")).align(Align.left).width(125.0f).height(40.0f);
 		layoutTable.add(m_fullscreen).align(Align.left);
+		layoutTable.row();
+		layoutTable.add(new Label(bundle.get("music_toggle_label"), uiSkin, "default")).align(Align.left).width(125.0f).height(40.0f);
+		layoutTable.add(m_musicToggle).align(Align.left);
 		
 		m_stage.addActor(m_window);
 	}
@@ -168,13 +179,20 @@ public class OptionsScreen extends Screen {
 		m_window.addAction(moveAction);
 	}
 	
-	private void applyGraphicsChanges() {
+	private void applyChanges() {
 		if(m_currentResolution != m_lastResolution || m_fullscreen.isChecked() != m_lastFullscreen) {
 			m_lastResolution = m_currentResolution;
 			m_lastFullscreen = m_fullscreen.isChecked();
 			
 			DisplayMode mode = m_displayModes[m_currentResolution];
 			m_game.getPlatformSettings().changeResolution(mode.width, mode.height, m_lastFullscreen);
+		}
+		if(m_musicToggle.isChecked() != m_lastMusicToggleState) {
+			m_lastMusicToggleState = m_musicToggle.isChecked();
+			if(m_lastMusicToggleState) 
+				m_game.playMusic();
+			else
+				m_game.stopMusic();
 		}
 	}
 	
@@ -222,6 +240,17 @@ public class OptionsScreen extends Screen {
 	
 	@Override
 	public void onEnter() {
+		findCurrentResolution();
+		String text = String.format("%d X %d", m_displayModes[m_currentResolution].width, 
+				   m_displayModes[m_currentResolution].height);
+		m_resolutionText.setText(text);
+		
+		m_lastFullscreen = Gdx.graphics.isFullscreen();
+		m_fullscreen.setChecked(m_lastFullscreen);
+		
+		m_lastMusicToggleState = m_game.isMusicPlaying();
+		m_musicToggle.setChecked(m_lastMusicToggleState);
+		
 		slideIn();
 		Gdx.input.setInputProcessor(m_stage);
 	}

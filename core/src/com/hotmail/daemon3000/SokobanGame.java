@@ -20,16 +20,19 @@ public class SokobanGame extends Game {
 	
 	@Override
 	public void create() {
-		loadScores();
-		
-		Locale locale = new Locale(getPlatformSettings().getLanguage());
+		PlayerPrefs playerPrefs = getPlatformSettings().getPlayerPrefs();
+		Locale locale = new Locale(playerPrefs.getString("language", "en"));
 		m_stringBundle = I18NBundle.createBundle(Gdx.files.internal("i18n/sokoban"), locale);
 		
 		m_gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/music.ogg"));
 		m_gameMusic.setVolume(0.4f);
 		m_gameMusic.setLooping(true);
-		m_gameMusic.play();
 		
+		boolean playMusic = playerPrefs.getBoolean("music_on", true);
+		if(playMusic)
+			m_gameMusic.play();
+		
+		loadHighscores();
 		setScene(new StartScene(this));
 	}
 	
@@ -39,9 +42,26 @@ public class SokobanGame extends Game {
 		super.dispose();
 	}
 	
+	@Override
 	public void exit() {
-		saveScores();
-		Gdx.app.exit();
+		saveHighscores();
+		super.exit();
+	}
+	
+	public boolean isMusicPlaying() {
+		return m_gameMusic.isPlaying();
+	}
+	
+	public void playMusic() {
+		PlayerPrefs playerPrefs = getPlatformSettings().getPlayerPrefs();
+		playerPrefs.setBoolean("music_on", true);
+		m_gameMusic.play();
+	}
+	
+	public void stopMusic() {
+		PlayerPrefs playerPrefs = getPlatformSettings().getPlayerPrefs();
+		playerPrefs.setBoolean("music_on", false);
+		m_gameMusic.stop();
 	}
 	
 	public I18NBundle getStringBundle() {
@@ -68,7 +88,7 @@ public class SokobanGame extends Game {
 		}
 	}
 	
-	private void saveScores() {
+	private void saveHighscores() {
 		FileHandle file = getPlatformSettings().getHighscoresPath();
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		try {
@@ -83,7 +103,7 @@ public class SokobanGame extends Game {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void loadScores() {
+	private void loadHighscores() {
 		FileHandle file = getPlatformSettings().getHighscoresPath();
 		if(file.exists()) {
 			try {

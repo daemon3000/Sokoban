@@ -15,9 +15,8 @@ public interface PlatformSettings {
 	Viewport createViewport(Camera camera);
 	Vector2 getScreenSize();
 	Vector2 getVirtualScreenSize();
-	String getTitle();
-	String getLanguage();
+	PlayerPrefs getPlayerPrefs();
 	void changeResolution(int width, int height, boolean fullscreen);
 	void setFullscreen(boolean enabled);
-	void saveSettings();
+	void savePlayerPrefs();
 }

@@ -50,7 +50,6 @@ public abstract class Game implements ApplicationListener {
 		if(m_currentScene != null) {
 			m_currentScene.dispose();
 		}
-		m_platformSettings.saveSettings();
 	}
 	
 	public void setScene(Scene scene) {
@@ -71,6 +70,11 @@ public abstract class Game implements ApplicationListener {
 	
 	public PlatformSettings getPlatformSettings() {
 		return m_platformSettings;
+	}
+	
+	public void exit() {
+		m_platformSettings.savePlayerPrefs();
+		Gdx.app.exit();
 	}
 }
 

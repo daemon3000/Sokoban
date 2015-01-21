@@ -223,23 +223,12 @@ public class LevelSelectScreen extends Screen {
 			return m_stringBundle.get("unknown");
 	}
 	
-	private void slideIn() {
-		MoveToAction moveAction = new MoveToAction();
-		moveAction.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
-		moveAction.setDuration(0.4f);
-		m_window.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
-		m_window.addAction(moveAction);
-	}
-	
-	private void slideOut() {
-		MoveToAction moveAction = new MoveToAction();
-		moveAction.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
-		moveAction.setDuration(0.2f);
-		m_window.addAction(moveAction);
-	}
-	
 	@Override
 	public void onEnter() {
+		m_startLevel.setText("0");
+		m_currentLevelPack = 0;
+		resetPackInfo();
+		
 		slideIn();
 		Gdx.input.setInputProcessor(m_stage);
 	}
@@ -274,6 +263,21 @@ public class LevelSelectScreen extends Screen {
 		m_window.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
 	}
 
+	private void slideIn() {
+		MoveToAction moveAction = new MoveToAction();
+		moveAction.setPosition(m_screenSize.x / 2 - m_window.getWidth() / 2, m_screenSize.y / 2 - m_window.getHeight() / 2);
+		moveAction.setDuration(0.4f);
+		m_window.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
+		m_window.addAction(moveAction);
+	}
+	
+	private void slideOut() {
+		MoveToAction moveAction = new MoveToAction();
+		moveAction.setPosition(m_screenSize.x + m_window.getWidth(), m_screenSize.y / 2 - m_window.getHeight() / 2);
+		moveAction.setDuration(0.2f);
+		m_window.addAction(moveAction);
+	}
+	
 	@Override
 	public void dispose() {
 		m_stage.dispose();

@@ -14,7 +14,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = (int)screenSize.x;
 		config.height = (int)screenSize.y;
-		config.title = settings.getTitle();
+		config.title = settings.getPlayerPrefs().getString("window_title", "Sokoban");
 		config.resizable = false;
 		config.fullscreen = settings.getFullscreen();
 		config.useGL30 = false;
