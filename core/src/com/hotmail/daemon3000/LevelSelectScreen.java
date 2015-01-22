@@ -225,7 +225,7 @@ public class LevelSelectScreen extends Screen {
 	
 	@Override
 	public void onEnter() {
-		m_startLevel.setText("0");
+		m_startLevel.setText("1");
 		m_currentLevelPack = 0;
 		resetPackInfo();
 		
