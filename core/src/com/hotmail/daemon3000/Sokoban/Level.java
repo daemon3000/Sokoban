@@ -1,6 +1,5 @@
 package com.hotmail.daemon3000.Sokoban;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.*;
@@ -13,7 +12,7 @@ public class Level {
 	}
 	
 	private SpriteBatch m_spriteBatch;
-	private Camera m_camera;
+	private CameraSmoothFollow m_cameraFollow;
 	private TextureRegion[] m_tileRegions;
 	private Pool<UndoStep> m_undoPool;
 	private Array<UndoStep> m_undoStack;
@@ -30,9 +29,9 @@ public class Level {
 	private boolean m_isInitialized = false;
 	private PlayerDirection m_playerDir;
 	
-	public Level(SpriteBatch batch, Camera camera, TextureRegion[] tileRegions, int tileCapacity) {
+	public Level(SpriteBatch batch, CameraSmoothFollow cameraFollow, TextureRegion[] tileRegions, int tileCapacity) {
 		m_spriteBatch = batch;
-		m_camera = camera;
+		m_cameraFollow = cameraFollow;
 		m_tileRegions = tileRegions;
 		m_undoStack = new Array<UndoStep>(MAX_UNDO_STEPS + 1);
 		m_undoPool = new Pool<UndoStep>(MAX_UNDO_STEPS + 1) {
@@ -45,8 +44,8 @@ public class Level {
 		m_tiles = new byte[tileCapacity];
 	}
 	
-	public Level(SpriteBatch batch, Camera camera, TextureRegion[] tileRegions, int tileCapacity, LevelData levelData) {
-		this(batch, camera, tileRegions, tileCapacity);
+	public Level(SpriteBatch batch, CameraSmoothFollow cameraFollow, TextureRegion[] tileRegions, int tileCapacity, LevelData levelData) {
+		this(batch, cameraFollow, tileRegions, tileCapacity);
 		initialize(levelData);
 	}
 	
@@ -65,7 +64,7 @@ public class Level {
 		m_playerPosY = levelData.playerPosY;
 		m_goalCount = levelData.goalCount;
 		m_currentActiveGoals = levelData.activeGoalCountAtStart;
-		m_camera.position.set(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, 0);
+		m_cameraFollow.moveTo(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT);
 		m_moveCount = 0;
 		m_playerDir = PlayerDirection.Front;
 		m_levelCompleteListeners.clear();
@@ -74,12 +73,15 @@ public class Level {
 		clearUndoStack();
 	}
 	
+	public void update(float delta) {
+		m_cameraFollow.update(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, delta);
+	}
+	
 	public void render() {
 		if(m_isDisposed || !m_isInitialized || m_tiles.length == 0)
 			return;
 		
-		m_camera.update();
-		m_spriteBatch.setProjectionMatrix(m_camera.combined);
+		m_spriteBatch.setProjectionMatrix(m_cameraFollow.getCamera().combined);
 		m_spriteBatch.begin();
 		
 		int length = m_width * m_height;  
@@ -138,7 +140,6 @@ public class Level {
 		m_playerPosX += dx;
 		m_playerPosY += dy;
 		m_moveCount++;
-		m_camera.position.set(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, 0);
 		
 		tile = getTileAt(m_playerPosX, m_playerPosY);
 		if(tile == Tiles.TILE_EMPTY)
@@ -218,8 +219,6 @@ public class Level {
 		else if(tile == Tiles.TILE_GOAL)
 			setTileAt(m_playerPosX, m_playerPosY, Tiles.TILE_PLAYER_ON_GOAL);
 		setPlayerDirection(undoStep.deltaX, undoStep.deltaY);
-		
-		m_camera.position.set(m_playerPosX * Tiles.TILE_WIDTH, (m_height - (m_playerPosY + 1)) * Tiles.TILE_HEIGHT, 0);
 		
 		if(!undoStep.movedCrate) {
 			m_undoPool.free(undoStep);
@@ -324,7 +323,7 @@ public class Level {
 			m_undoStack.clear();
 			m_undoPool.clear();
 			m_spriteBatch = null;
-			m_camera = null;
+			m_cameraFollow = null;
 			m_tileRegions = null;
 			m_undoStack = null;
 			m_tiles = null;

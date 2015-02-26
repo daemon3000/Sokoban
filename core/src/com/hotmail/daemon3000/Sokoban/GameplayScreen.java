@@ -39,7 +39,7 @@ public class GameplayScreen extends Screen {
 		for(int i = 0; i < m_tileSet.length; i++) {
 			m_tileSet[i] = new TextureRegion(m_tileSheet, i * Tiles.TILE_WIDTH, 0, Tiles.TILE_WIDTH, Tiles.TILE_HEIGHT);
 		}
-		m_levelPack = new LevelPack(levelPackID, levelPackFile, m_tileSet, m_spriteBatch, m_camera);
+		m_levelPack = new LevelPack(levelPackID, levelPackFile, m_tileSet, m_spriteBatch, new CameraSmoothFollow(m_camera, 1.5f, Tiles.TILE_WIDTH * 4));
 	}
 	
 	@Override
@@ -53,8 +53,10 @@ public class GameplayScreen extends Screen {
 
 	@Override
 	public void update(float delta) {
-		if(m_currentLevel != null)
+		if(m_currentLevel != null) {
+			m_currentLevel.update(delta);
 			m_elapsedTime += delta;
+		}
 	}
 	
 	@Override

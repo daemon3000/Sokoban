@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.*;
@@ -13,7 +12,7 @@ public class LevelPack {
 	private final int MIN_LEVEL_SIZE = 3;
 	
 	private SpriteBatch m_spriteBatch;
-	private Camera m_camera;
+	private CameraSmoothFollow m_cameraFollow;
 	private TextureRegion[] m_tileSet;
 	private Array<LevelData> m_levelData;
 	private Level m_loadedLevel;
@@ -21,11 +20,11 @@ public class LevelPack {
 	private int m_maxLevelSize;
 	private boolean m_isDisposed = false;
 	
-	public LevelPack(String id, FileHandle fileHandle, TextureRegion[] tileSet, SpriteBatch spriteBatch, Camera camera) {
+	public LevelPack(String id, FileHandle fileHandle, TextureRegion[] tileSet, SpriteBatch spriteBatch, CameraSmoothFollow cameraFollow) {
 		m_id = id;
 		m_tileSet = tileSet;
 		m_spriteBatch = spriteBatch;
-		m_camera = camera;
+		m_cameraFollow = cameraFollow;
 		parse(fileHandle);
 	}
 	
@@ -149,7 +148,7 @@ public class LevelPack {
 				m_loadedLevel.initialize(m_levelData.get(index));
 			}
 			else {
-				m_loadedLevel = new Level(m_spriteBatch, m_camera, m_tileSet, m_maxLevelSize, m_levelData.get(index));
+				m_loadedLevel = new Level(m_spriteBatch, m_cameraFollow, m_tileSet, m_maxLevelSize, m_levelData.get(index));
 			}
 			
 			return m_loadedLevel;
@@ -166,7 +165,7 @@ public class LevelPack {
 		if(!m_isDisposed) {
 			m_loadedLevel.dispose();
 			m_spriteBatch = null;
-			m_camera = null;
+			m_cameraFollow = null;
 			m_tileSet = null;
 			
 			m_levelData.clear();
